@@ -60,13 +60,6 @@ class Footer extends React.Component {
         ifvisible.on("wakeup", function() {
             ensure();
         });
-
-        console.stdlog = console.log.bind(console);
-        console.logs = [];
-        console.log = function() {
-            console.logs.push(Array.from(arguments));
-            console.stdlog.apply(console, arguments);
-        };
     }
 
     shouldComponentUpdate(nextProps, nextState) {
