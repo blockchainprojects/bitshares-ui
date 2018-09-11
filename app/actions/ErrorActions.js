@@ -5,6 +5,7 @@ class ErrorActions {
         const newData = {
             directory,
             error,
+            errorInfo,
             length
         };
         let errors = [];

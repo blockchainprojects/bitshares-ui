@@ -14,6 +14,7 @@ import LoadingIndicator from "./components/LoadingIndicator";
 import InitError from "./components/InitError";
 import SyncError from "./components/SyncError";
 import counterpart from "counterpart";
+import ErrorActions from "actions/ErrorActions";
 
 /*
 * Electron does not support browserHistory, so we need to use hashHistory.
@@ -89,6 +90,10 @@ class AppInit extends React.Component {
                     windowsClass;
             }
         }
+    }
+
+    componentDidCatch(error, errorInfo) {
+        ErrorActions.setError("AppInit", error, errorInfo);
     }
 
     _statusCallback(status) {

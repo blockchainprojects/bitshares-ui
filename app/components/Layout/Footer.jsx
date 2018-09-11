@@ -309,11 +309,6 @@ class Footer extends React.Component {
         }
     }
 
-    // report() {
-    //     ReportActions.open();
-    //     console.log('test')
-    // }
-
     _showSend(e) {
         e.preventDefault();
         if (this.send_modal) this.send_modal.show();
@@ -321,25 +316,9 @@ class Footer extends React.Component {
     }
 
     _showReport(e) {
-        console.log("click to button for open modal");
         e.preventDefault();
         if (this.reportModal) this.reportModal.show();
-        // this._closeDropdown();
     }
-
-    // _renderReportModal=()=> {
-    //     console.log('click to button for open modal')
-    //     return (
-    //         <ReportModal
-    //             id="report_modal"
-    //             refCallback={e => {
-    //                 if (e) this.reportModal = e;
-    //             }}
-    //             // from_name={this.props.account.get("name")}
-    //             asset_id={this.state.send_asset || "1.3.0"}
-    //         />
-    //     );
-    // }
 
     render() {
         const autoSelectAPI = "wss://fake.automatic-selection.com";

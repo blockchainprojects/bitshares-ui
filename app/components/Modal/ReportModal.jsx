@@ -45,6 +45,7 @@ class ReportModal extends React.Component {
     }
 
     show() {
+        this.getErrors();
         this.setState({open: true, hidden: false}, () => {
             ZfApi.publish(this.props.id, "open");
             // this._initForm();
@@ -103,32 +104,21 @@ class ReportModal extends React.Component {
         });
     };
 
-    getErrors = cb => {
+    getErrors = () => {
         ErrorActions.getErrors().then(data => {
-            this.setState(
-                {
-                    memo: JSON.stringify(data)
-                },
-                () => {
-                    if (typeof cb == "function") {
-                        cb();
-                    }
-                }
-            );
+            this.setState({
+                memo: JSON.stringify(data)
+            });
         });
     };
 
     copyErrors = () => {
-        this.getErrors(() => {
-            const copyText = document.getElementById("errorsText");
-            copyText.select();
-            document.execCommand("copy");
+        const copyText = document.getElementById("errorsText");
+        copyText.select();
+        document.execCommand("copy");
 
-            alert("Copied the text: " + copyText.value);
-
-            this.setState({
-                errorCopySuccess: true
-            });
+        this.setState({
+            errorCopySuccess: true
         });
     };
 
