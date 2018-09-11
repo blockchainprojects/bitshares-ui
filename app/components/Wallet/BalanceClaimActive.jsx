@@ -13,7 +13,6 @@ import BalanceClaimSelector from "components/Wallet/BalanceClaimSelector";
 import WalletActions from "actions/WalletActions";
 import MyAccounts from "components/Forms/MyAccounts";
 import Translate from "react-translate-component";
-import ErrorActions from "actions/ErrorActions";
 
 class BalanceClaimActive extends Component {
     componentWillMount() {
@@ -21,10 +20,6 @@ class BalanceClaimActive extends Component {
         let keySeq = keys.keySeq();
         BalanceClaimActiveActions.setPubkeys(keySeq);
         this.existing_keys = keySeq;
-    }
-
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("BalanceClaimActive", error, errorInfo);
     }
 
     componentWillReceiveProps(nextProps) {

@@ -11,7 +11,6 @@ import WalletDb from "stores/WalletDb";
 import counterpart from "counterpart";
 import {ChainStore} from "bitsharesjs";
 import AmountSelector from "../Utility/AmountSelector";
-import ErrorActions from "actions/ErrorActions";
 
 class ModalContent extends React.Component {
     static propTypes = {
@@ -24,10 +23,6 @@ class ModalContent extends React.Component {
         this.state = {
             amount: 0
         };
-    }
-
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("ModalContent", error, errorInfo);
     }
 
     onAmountChanged({amount, asset}) {

@@ -15,7 +15,6 @@ import WalletChangePassword from "./WalletChangePassword";
 import {WalletCreate} from "./WalletCreate";
 import {BackupCreate, BackupRestore} from "./Backup";
 import BackupBrainkey from "./BackupBrainkey";
-import ErrorActions from "actions/ErrorActions";
 
 const connectObject = {
     listenTo() {
@@ -389,10 +388,6 @@ class WalletDelete extends Component {
             selected_wallet: null,
             confirm: 0
         };
-    }
-
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("WalletDelete", error, errorInfo);
     }
 
     _onCancel() {

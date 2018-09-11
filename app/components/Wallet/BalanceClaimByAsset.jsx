@@ -6,7 +6,6 @@ import BalanceClaimActiveStore from "stores/BalanceClaimActiveStore";
 import BalanceClaimActiveActions from "actions/BalanceClaimActiveActions";
 import FormattedAsset from "components/Utility/FormattedAsset";
 import Translate from "react-translate-component";
-import ErrorActions from "actions/ErrorActions";
 
 class BalanceClaimByAsset extends Component {
     constructor() {
@@ -16,10 +15,6 @@ class BalanceClaimByAsset extends Component {
     static getStores() {}
 
     static getPropsFromStores() {}
-
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("BalanceClaimByAsset", error, errorInfo);
-    }
 
     componentWillMount() {
         var keys = PrivateKeyStore.getState().keys;

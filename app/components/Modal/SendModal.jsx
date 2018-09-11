@@ -22,7 +22,6 @@ import counterpart from "counterpart";
 import {connect} from "alt-react";
 import classnames from "classnames";
 import {getWalletName} from "branding";
-import ErrorActions from "actions/ErrorActions";
 
 class SendModal extends React.Component {
     constructor(props) {
@@ -41,10 +40,6 @@ class SendModal extends React.Component {
                 this.setState({hidden: false});
             }
         });
-    }
-
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("SendModal", error, errorInfo);
     }
 
     getInitialState() {

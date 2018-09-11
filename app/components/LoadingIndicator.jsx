@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import ErrorActions from "actions/ErrorActions";
 
 class LoadingIndicator extends React.Component {
     static propTypes = {
@@ -16,10 +15,6 @@ class LoadingIndicator extends React.Component {
     constructor(props) {
         super(props);
         this.state = {progress: 0};
-    }
-
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("LoadingIndicator", error, errorInfo);
     }
 
     render() {

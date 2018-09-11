@@ -30,10 +30,6 @@ class ReportModal extends React.Component {
         });
     }
 
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("ReportModal", error, errorInfo);
-    }
-
     getInitialState() {
         return {
             open: false,

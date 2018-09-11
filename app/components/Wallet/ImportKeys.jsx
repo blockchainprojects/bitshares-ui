@@ -16,7 +16,6 @@ import BalanceClaimActiveActions from "actions/BalanceClaimActiveActions";
 import BalanceClaimAssetTotal from "components/Wallet/BalanceClaimAssetTotal";
 import WalletDb from "stores/WalletDb";
 import ImportKeysStore from "stores/ImportKeysStore";
-import ErrorActions from "actions/ErrorActions";
 
 import GenesisFilter from "chain/GenesisFilter";
 
@@ -40,10 +39,6 @@ class ImportKeys extends Component {
     static defaultProps = {
         privateKey: true
     };
-
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("ImportKeys", error, errorInfo);
-    }
 
     _getInitialState(keep_file_name = false) {
         return {

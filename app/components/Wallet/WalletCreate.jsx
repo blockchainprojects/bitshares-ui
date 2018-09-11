@@ -11,7 +11,6 @@ import cname from "classnames";
 import SettingsActions from "actions/SettingsActions";
 import PropTypes from "prop-types";
 import {getWalletName} from "branding";
-import ErrorActions from "actions/ErrorActions";
 
 class CreateNewWallet extends Component {
     static propTypes = {
@@ -39,10 +38,6 @@ class CreateNewWallet extends Component {
     onBack(e) {
         e.preventDefault();
         window.history.back();
-    }
-
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("CreateNewWallet", error, errorInfo);
     }
 
     onPassword(valid_password) {

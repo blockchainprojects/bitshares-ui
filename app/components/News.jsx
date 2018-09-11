@@ -4,7 +4,6 @@ import {api} from "steem-js-api";
 import Translate from "react-translate-component";
 import LoadingIndicator from "./LoadingIndicator";
 import sanitize from "sanitize";
-import ErrorActions from "actions/ErrorActions";
 
 const query = {tag: "bitshares.fdn", limit: 20};
 
@@ -163,10 +162,6 @@ class News extends React.Component {
             .catch(() => {
                 this.setState({isLoading: false, isWrong: true});
             });
-    }
-
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("News", error, errorInfo);
     }
 
     componentWillUnmount() {

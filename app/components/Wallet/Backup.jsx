@@ -19,7 +19,6 @@ import {PrivateKey} from "bitsharesjs";
 import SettingsActions from "actions/SettingsActions";
 import {backupName} from "common/backupUtils";
 import {getWalletName} from "branding";
-import ErrorActions from "actions/ErrorActions";
 
 const connectObject = {
     listenTo() {
@@ -78,10 +77,6 @@ class BackupRestore extends Component {
         };
     }
 
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("BackupRestore", error, errorInfo);
-    }
-
     componentWillMount() {
         BackupActions.reset();
     }
@@ -134,10 +129,6 @@ class Restore extends Component {
     constructor() {
         super();
         this.state = {};
-    }
-
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("Restore", error, errorInfo);
     }
 
     isRestored() {
@@ -305,10 +296,6 @@ class Download extends Component {
         } catch (e) {}
     }
 
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("Download", error, errorInfo);
-    }
-
     componentDidMount() {
         if (!this.isFileSaverSupported)
             notify.error("File saving is not supported");
@@ -345,10 +332,6 @@ Download = connect(
 class Create extends Component {
     getBackupName() {
         return backupName(this.props.wallet.current_wallet);
-    }
-
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("Create", error, errorInfo);
     }
 
     render() {
@@ -449,10 +432,6 @@ class Upload extends Component {
         // debugger;
         // this.refs.file_input.value = "";
         BackupActions.reset();
-    }
-
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("Upload", error, errorInfo);
     }
 
     render() {

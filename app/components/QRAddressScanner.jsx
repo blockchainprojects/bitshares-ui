@@ -5,7 +5,6 @@ import Icon from "./Icon/Icon";
 import ZfApi from "react-foundation-apps/src/utils/foundation-api";
 import counterpart from "counterpart";
 import PropTypes from "prop-types";
-import ErrorActions from "actions/ErrorActions";
 
 class QRAddressScanner extends React.Component {
     modalId = "qr_scanner_modal";
@@ -28,10 +27,6 @@ class QRAddressScanner extends React.Component {
         this.handleClick = this.handleClick.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.onScanSuccess = this.onScanSuccess.bind(this);
-    }
-
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("QRAddressScanner", error, errorInfo);
     }
 
     handleClick() {

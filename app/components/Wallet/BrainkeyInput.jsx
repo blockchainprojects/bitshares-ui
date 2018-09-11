@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import cname from "classnames";
 import {hash, key} from "bitsharesjs";
-import ErrorActions from "actions/ErrorActions";
 
 var dictionary_set;
 
@@ -23,10 +22,6 @@ export default class BrainkeyInput extends Component {
             brnkey: "",
             loading: true
         };
-    }
-
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("BrainkeyInput", error, errorInfo);
     }
 
     componentWillMount() {

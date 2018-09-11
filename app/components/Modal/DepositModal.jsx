@@ -18,7 +18,6 @@ import {
 } from "lib/common/assetGatewayMixin";
 import {availableGateways} from "common/gateways";
 import {getGatewayStatusByAsset} from "common/gatewayUtils";
-import ErrorActions from "actions/ErrorActions";
 import CryptoLinkFormatter from "../Utility/CryptoLinkFormatter";
 
 class DepositModalContent extends DecimalChecker {
@@ -62,10 +61,6 @@ class DepositModalContent extends DecimalChecker {
         } else {
             this.setState({selectedAsset: "BTS"});
         }
-    }
-
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("DepositModalContent", error, errorInfo);
     }
 
     shouldComponentUpdate(np, ns) {

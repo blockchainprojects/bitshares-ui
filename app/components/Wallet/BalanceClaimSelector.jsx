@@ -7,7 +7,6 @@ import BalanceClaimActiveStore from "stores/BalanceClaimActiveStore";
 import BalanceClaimActiveActions from "actions/BalanceClaimActiveActions";
 import FormattedAsset from "components/Utility/FormattedAsset";
 import Translate from "react-translate-component";
-import ErrorActions from "actions/ErrorActions";
 
 class BalanceClaimSelector extends Component {
     componentWillReceiveProps(nextProps) {
@@ -16,10 +15,6 @@ class BalanceClaimSelector extends Component {
                 nextProps.claim_account_name,
                 nextProps.checked
             );
-    }
-
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("BalanceClaimSelector", error, errorInfo);
     }
 
     render() {
