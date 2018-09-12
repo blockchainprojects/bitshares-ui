@@ -14,7 +14,7 @@ import LoadingIndicator from "./components/LoadingIndicator";
 import InitError from "./components/InitError";
 import SyncError from "./components/SyncError";
 import counterpart from "counterpart";
-import ErrorActions from "actions/ErrorActions";
+import LogsActions from "actions/LogsActions";
 
 /*
 * Electron does not support browserHistory, so we need to use hashHistory.
@@ -55,7 +55,30 @@ class AppInit extends React.Component {
         };
     }
 
+    componentDidCatch(error, errorInfo) {
+        LogsActions.setLog({
+            type: "query",
+            log: {error, errorInfo}
+        });
+    }
+
     componentWillMount() {
+        const saveLog = (type, log) =>
+            LogsActions.setLog({type, log: Array.from(log)});
+
+        console.log = function() {
+            saveLog("log", arguments);
+        };
+        console.warn = function() {
+            saveLog("warn", arguments);
+        };
+        console.error = function() {
+            saveLog("error", arguments);
+        };
+        console.info = function() {
+            saveLog("info", arguments);
+        };
+
         willTransitionTo(true, this._statusCallback.bind(this))
             .then(() => {
                 this.setState({
@@ -90,10 +113,6 @@ class AppInit extends React.Component {
                     windowsClass;
             }
         }
-    }
-
-    componentDidCatch(error, errorInfo) {
-        ErrorActions.setError("AppInit", error, errorInfo);
     }
 
     _statusCallback(status) {

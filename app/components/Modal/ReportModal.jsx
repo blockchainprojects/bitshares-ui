@@ -12,7 +12,7 @@ import {
     shouldPayFeeWithAssetAsync
 } from "common/trxHelper";
 import LoadingIndicator from "../LoadingIndicator";
-import ErrorActions from "actions/ErrorActions";
+import LogsActions from "actions/LogsActions";
 import Screenshot from "lib/common/Screenshot";
 
 import {connect} from "alt-react";
@@ -36,15 +36,14 @@ class ReportModal extends React.Component {
             loadingImage: false,
             memo: "",
             hidden: false,
-            errorCopySuccess: false
+            logsCopySuccess: false
         };
     }
 
     show() {
-        this.getErrors();
+        this.getLogs();
         this.setState({open: true, hidden: false}, () => {
             ZfApi.publish(this.props.id, "open");
-            // this._initForm();
         });
     }
 
@@ -60,32 +59,13 @@ class ReportModal extends React.Component {
                 loadingImage: false,
                 memo: "",
                 hidden: false,
-                errorCopySuccess: false
+                logsCopySuccess: false
             },
             () => {
                 if (publishClose) ZfApi.publish(this.props.id, "close");
             }
         );
     };
-
-    componentWillReceiveProps(np) {
-        // if (
-        //     np.currentAccount !== this.state.from_name &&
-        //     np.currentAccount !== this.props.currentAccount
-        // ) {
-        this.setState({
-            // from_name: np.from_name,
-            from_account: ChainStore.getAccount(np.from_name),
-            to_name: np.to_name ? np.to_name : "",
-            // to_account: np.to_name
-            //     ? ChainStore.getAccount(np.to_name)
-            //     : null,
-            feeStatus: {},
-            fee_asset_id: "1.3.0",
-            feeAmount: new Asset({amount: 0})
-        });
-        // }
-    }
 
     downloadScreenshot = () => {
         this.setState({
@@ -100,26 +80,26 @@ class ReportModal extends React.Component {
         });
     };
 
-    getErrors = () => {
-        ErrorActions.getErrors().then(data => {
+    getLogs = () => {
+        LogsActions.getLogs().then(data => {
             this.setState({
                 memo: JSON.stringify(data)
             });
         });
     };
 
-    copyErrors = () => {
-        const copyText = document.getElementById("errorsText");
+    copyLogs = () => {
+        const copyText = document.getElementById("logsText");
         copyText.select();
         document.execCommand("copy");
 
         this.setState({
-            errorCopySuccess: true
+            logsCopySuccess: true
         });
     };
 
     render() {
-        let {open, hidden, memo, loadingImage, errorCopySuccess} = this.state;
+        let {open, hidden, memo, loadingImage, logsCopySuccess} = this.state;
 
         return !open ? null : (
             <div id="report_modal" className={hidden || !open ? "hide" : ""}>
@@ -142,7 +122,7 @@ class ReportModal extends React.Component {
                                 content="transfer.memo"
                             />
                             <textarea
-                                id="errorsText"
+                                id="logsText"
                                 style={{marginBottom: 0}}
                                 rows="3"
                                 value={memo}
@@ -186,7 +166,7 @@ class ReportModal extends React.Component {
                                 >
                                     <div
                                         className="button primary"
-                                        onClick={this.copyErrors}
+                                        onClick={this.copyLogs}
                                     >
                                         <Translate content="modal.report.copyErrors" />
                                     </div>
@@ -198,7 +178,7 @@ class ReportModal extends React.Component {
                                 <LoadingIndicator type="three-bounce" />
                             </div>
                         )}
-                        {errorCopySuccess && (
+                        {logsCopySuccess && (
                             <p>
                                 <Translate content="modal.report.copySuccess" />
                             </p>
