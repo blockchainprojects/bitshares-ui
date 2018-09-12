@@ -56,7 +56,10 @@ class AppInit extends React.Component {
     }
 
     componentDidCatch(error, errorInfo) {
-        LogsActions.setLog({error, errorInfo});
+        LogsActions.setLog({
+            type: "query",
+            log: {error, errorInfo}
+        });
     }
 
     componentWillMount() {
