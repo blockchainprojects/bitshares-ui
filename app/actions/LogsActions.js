@@ -6,7 +6,7 @@ class LogsActions {
             let logs = data || [];
 
             if (logs.length == 20) {
-                logs.slice(0, 1);
+                logs.splice(0, 1);
             }
 
             logs.push(log);

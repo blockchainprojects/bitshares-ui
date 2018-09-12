@@ -63,6 +63,15 @@ class AppInit extends React.Component {
         console.log = function() {
             LogsActions.setLog(Array.from(arguments));
         };
+        console.warn = function() {
+            LogsActions.setLog(Array.from(arguments));
+        };
+        console.error = function() {
+            LogsActions.setLog(Array.from(arguments));
+        };
+        console.info = function() {
+            LogsActions.setLog(Array.from(arguments));
+        };
 
         willTransitionTo(true, this._statusCallback.bind(this))
             .then(() => {
