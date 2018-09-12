@@ -396,6 +396,9 @@ module.exports = function(env) {
                 )
             }
         },
+        node: {
+            fs: "empty"
+        },
         plugins: plugins
     };
 
