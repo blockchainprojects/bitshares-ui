@@ -60,17 +60,20 @@ class AppInit extends React.Component {
     }
 
     componentWillMount() {
+        const saveLog = (type, log) =>
+            LogsActions.setLog({type, log: Array.from(log)});
+
         console.log = function() {
-            LogsActions.setLog(Array.from(arguments));
+            saveLog("log", arguments);
         };
         console.warn = function() {
-            LogsActions.setLog(Array.from(arguments));
+            saveLog("warn", arguments);
         };
         console.error = function() {
-            LogsActions.setLog(Array.from(arguments));
+            saveLog("error", arguments);
         };
         console.info = function() {
-            LogsActions.setLog(Array.from(arguments));
+            saveLog("info", arguments);
         };
 
         willTransitionTo(true, this._statusCallback.bind(this))
