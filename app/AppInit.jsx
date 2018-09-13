@@ -79,6 +79,10 @@ class AppInit extends React.Component {
             saveLog("info", arguments);
         };
 
+        window.onerror = function(errorMsg, url, lineNumber) {
+            saveLog("window.onerror", {errorMsg, url, lineNumber});
+        };
+
         willTransitionTo(true, this._statusCallback.bind(this))
             .then(() => {
                 this.setState({
