@@ -1258,6 +1258,14 @@
         "page_not_found_subtitle": "このページは存在しません",
         "page_not_found_title": "ページが見つかりません。"
     },
+    "page500": {
+        "asset_not_found_subtitle": "That asset does not exist",
+        "home": "Home",
+        "page_not_found_subtitle": "Critical error",
+        "page_not_found_title": "500 page",
+        "showLogs": "Show logs",
+        "hideLogs": "Hide logs"
+    },
     "pagination": {
         "newer": "新しい",
         "older": "古い"

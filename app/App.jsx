@@ -2,7 +2,7 @@ import React from "react";
 import {ChainStore} from "bitsharesjs";
 import AccountStore from "stores/AccountStore";
 import NotificationStore from "stores/NotificationStore";
-import {withRouter} from "react-router-dom";
+import {Route, Switch, withRouter} from "react-router-dom";
 import SyncError from "./components/SyncError";
 import LoadingIndicator from "./components/LoadingIndicator";
 import BrowserNotifications from "./components/BrowserNotifications/BrowserNotificationsContainer";
@@ -11,7 +11,6 @@ import ReactTooltip from "react-tooltip";
 import NotificationSystem from "react-notification-system";
 import TransactionConfirm from "./components/Blockchain/TransactionConfirm";
 import WalletUnlockModal from "./components/Wallet/WalletUnlockModal";
-import ReportModal from "./components/Modal/ReportModal";
 import BrowserSupportModal from "./components/Modal/BrowserSupportModal";
 import Footer from "./components/Layout/Footer";
 import Deprecate from "./Deprecate";
@@ -22,10 +21,9 @@ import titleUtils from "common/titleUtils";
 import {BodyClassName} from "bitshares-ui-style-guide";
 import Loadable from "react-loadable";
 
-import {Route, Switch} from "react-router-dom";
-
 // Nested route components
 import Page404 from "./components/Page404/Page404";
+import Page500 from "./components/Page500/Page500";
 
 const Exchange = Loadable({
     loader: () =>
@@ -426,6 +424,7 @@ class App extends React.Component {
                                     path="/help/:path1/:path2/:path3"
                                     component={Help}
                                 />
+                                <Route path="/error" component={Page500} />
                                 <Route path="*" component={Page404} />
                             </Switch>
                         </div>

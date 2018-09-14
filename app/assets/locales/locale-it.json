@@ -1258,6 +1258,14 @@
         "page_not_found_subtitle": "Diese Seite existiert nicht",
         "page_not_found_title": "404 Seite nicht gefunden"
     },
+    "page500": {
+        "asset_not_found_subtitle": "That asset does not exist",
+        "home": "Home",
+        "page_not_found_subtitle": "Critical error",
+        "page_not_found_title": "500 page",
+        "showLogs": "Show logs",
+        "hideLogs": "Hide logs"
+    },
     "pagination": {
         "newer": "Più recenti",
         "older": "Più vecchi"
@@ -1663,11 +1671,6 @@
         "total_x_assets": "Total of %(count)s assets",
         "total_x_items": "Total of %(count)s items",
         "total_x_markets": "Total of %(count)s markets",
-        "total_x_operations": "Total of %(count)s operations"
-    },
-    "utility": {
-        "total_x_assets": "Total of %(count)s assets",
-        "total_x_items": "Total of %(count)s items",
         "total_x_operations": "Total of %(count)s operations"
     },
     "walkthrough": {

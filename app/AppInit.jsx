@@ -81,6 +81,7 @@ class AppInit extends React.Component {
 
         window.onerror = function(errorMsg, url, lineNumber) {
             saveLog("window.onerror", {errorMsg, url, lineNumber});
+            window.location.href = "/error";
         };
 
         willTransitionTo(true, this._statusCallback.bind(this))

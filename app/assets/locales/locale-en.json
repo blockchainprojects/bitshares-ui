@@ -1279,6 +1279,14 @@
         "page_not_found_subtitle": "This page does not exist",
         "page_not_found_title": "404 page not found"
     },
+    "page500": {
+        "asset_not_found_subtitle": "That asset does not exist",
+        "home": "Home",
+        "page_not_found_subtitle": "Critical error",
+        "page_not_found_title": "500 page",
+        "showLogs": "Show logs",
+        "hideLogs": "Hide logs"
+    },
     "pagination": {
         "newer": "Newer",
         "older": "Older"

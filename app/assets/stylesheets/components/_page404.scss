@@ -1,6 +1,7 @@
 .page-404 {
     height: 100%;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     text-align: center;
@@ -22,4 +23,8 @@ Midnight = #23313d
     margin: 18px 0;
 }
 .page-404-button-back {
+}
+
+.page-404-container-big {
+    flex-basis: 80%;
 }
