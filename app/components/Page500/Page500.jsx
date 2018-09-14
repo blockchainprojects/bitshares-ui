@@ -104,6 +104,9 @@ class Page500 extends React.Component {
                                 value={state.memo}
                                 onChange={this.onMemoChanged}
                             />
+                            <p>
+                                <Translate content="modal.report.copySuccess" />
+                            </p>
                         </div>
                     )}
                 </div>
@@ -133,9 +136,24 @@ class Page500 extends React.Component {
     hundleLogs = () => {
         const {state} = this;
 
-        this.setState({
-            showLogs: !state.showLogs
-        });
+        this.setState(
+            {
+                showLogs: !state.showLogs
+            },
+            () => {
+                if (!state.showLogs) {
+                    setTimeout(() => {
+                        this.copyLogs();
+                    }, 1000);
+                }
+            }
+        );
+    };
+
+    copyLogs = () => {
+        const copyText = document.getElementById("logsText");
+        copyText.select();
+        document.execCommand("copy");
     };
 }
 
