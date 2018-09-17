@@ -82,8 +82,10 @@ class ReportModal extends React.Component {
 
     getLogs = () => {
         LogsActions.getLogs().then(data => {
-            this.setState({
-                memo: JSON.stringify(data)
+            LogsActions.convertToText(data).then(text => {
+                this.setState({
+                    memo: text
+                });
             });
         });
     };

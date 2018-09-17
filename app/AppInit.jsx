@@ -63,15 +63,15 @@ class AppInit extends React.Component {
     }
 
     componentWillMount() {
-        const saveLog = (type, log) => {
-            LogsActions.setLog({type, log: Array.from(log)});
-            console[`str${type}`].apply(console, arguments);
-        };
-
         console.strlog = console.log.bind(console);
         console.strerror = console.error.bind(console);
         console.strwarn = console.warn.bind(console);
         console.strinfo = console.info.bind(console);
+
+        const saveLog = (type, log) => {
+            LogsActions.setLog({type, log: Array.from(log)});
+            console[`str${type}`].apply(console, log);
+        };
 
         console.log = function() {
             saveLog("log", arguments);
