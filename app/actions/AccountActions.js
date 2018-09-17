@@ -25,18 +25,12 @@ class AccountActions {
         return dispatch => {
             if (!accountSearch[uid]) {
                 accountSearch[uid] = true;
-                return AccountApi.lookupAccounts(start_symbol, limit)
-                    .then(result => {
+                return AccountApi.lookupAccounts(start_symbol, limit).then(
+                    result => {
                         accountSearch[uid] = false;
                         dispatch({accounts: result, searchTerm: start_symbol});
-                    })
-                    .catch(error => {
-                        console.log(
-                            "We have error with accountSearch mathod: ",
-                            error
-                        );
-                        reject(error);
-                    });
+                    }
+                );
             }
         };
     }
