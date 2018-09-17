@@ -32,7 +32,7 @@ let BackupActionsWrapped = alt.createActions(BackupActions);
 export default BackupActionsWrapped;
 
 export function backup(backup_pubkey) {
-    return new Promise(resolve => {
+    return new Promise(resolve, reject => {
         resolve(
             createWalletObject()
                 .then(wallet_object => {
@@ -70,7 +70,7 @@ export function backup(backup_pubkey) {
 // }
 
 export function restore(backup_wif, backup, wallet_name) {
-    return new Promise(resolve => {
+    return new Promise(resolve, reject => {
         resolve(
             decryptWalletBackup(backup_wif, backup)
                 .then(wallet_object => {
