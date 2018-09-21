@@ -51,7 +51,8 @@ class AppInit extends React.Component {
             apiConnected: false,
             apiError: false,
             syncError: null,
-            status: ""
+            status: "",
+            errorModule: false
         };
     }
 
@@ -60,6 +61,7 @@ class AppInit extends React.Component {
             type: "query",
             log: {error, errorInfo}
         });
+        this.setState({errorModule: true});
     }
 
     componentWillMount() {
@@ -88,7 +90,6 @@ class AppInit extends React.Component {
 
         window.onerror = function(errorMsg, url, lineNumber) {
             saveLog("window.onerror", {errorMsg, url, lineNumber});
-            window.location.href = "/error";
         };
 
         willTransitionTo(true, this._statusCallback.bind(this))

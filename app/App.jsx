@@ -2,7 +2,7 @@ import React from "react";
 import {ChainStore} from "bitsharesjs";
 import AccountStore from "stores/AccountStore";
 import NotificationStore from "stores/NotificationStore";
-import {Route, Switch, withRouter} from "react-router-dom";
+import {Route, Switch, withRouter, Redirect} from "react-router-dom";
 import SyncError from "./components/SyncError";
 import LoadingIndicator from "./components/LoadingIndicator";
 import BrowserNotifications from "./components/BrowserNotifications/BrowserNotificationsContainer";
@@ -132,13 +132,15 @@ class App extends React.Component {
             syncFail,
             incognito: false,
             incognitoWarningDismissed: false,
-            height: window && window.innerHeight
+            height: window && window.innerHeight,
+            errorModule: false
         };
 
         this._rebuildTooltips = this._rebuildTooltips.bind(this);
         this._chainStoreSub = this._chainStoreSub.bind(this);
         this._syncStatus = this._syncStatus.bind(this);
         this._getWindowHeight = this._getWindowHeight.bind(this);
+        this.onErrorModule = this.onErrorModule.bind(this);
     }
 
     componentWillUnmount() {
@@ -234,10 +236,24 @@ class App extends React.Component {
         );
         updateGatewayBackers();
     }
+    static getDerivedStateFromProps(nextProps, prevState) {
+        if (
+            nextProps.location.pathname !== "/error" &&
+            nextProps.errorModule !== prevState.errorModule
+        ) {
+            return {
+                errorModule: nextProps.errorModule
+            };
+        }
+        return null;
+    }
 
     componentDidUpdate(prevProps) {
         if (this.props.location !== prevProps.location) {
             this.onRouteChanged();
+        }
+        if (this.state.errorModule) {
+            this.onErrorModule();
         }
     }
 
@@ -304,6 +320,10 @@ class App extends React.Component {
     //     this.refs.notificationSystem.addNotification(params);
     // }
 
+    onErrorModule() {
+        this.setState({errorModule: false});
+    }
+
     render() {
         let {incognito, incognitoWarningDismissed} = this.state;
         let {walletMode, theme, location, match, ...others} = this.props;
@@ -321,6 +341,11 @@ class App extends React.Component {
             );
         } else if (__DEPRECATED__) {
             content = <Deprecate {...this.props} />;
+        } else if (
+            this.state.errorModule &&
+            window.location.pathname !== "/error"
+        ) {
+            return <Redirect to="/error" />;
         } else {
             content = (
                 <div className="grid-frame vertical">
