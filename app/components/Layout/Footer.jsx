@@ -108,6 +108,10 @@ class Footer extends React.Component {
 
         var hintData = document.querySelectorAll("[data-intro]");
         var theme = SettingsStore.getState().settings.get("themes");
+        let scrollableDiv = document.getElementsByClassName(
+            "grid-block vertical no-padding ps-container"
+        )[0];
+        let chartDiv = document.getElementsByClassName("exchange-bordered")[0];
 
         if (hintData.length == 0) {
             this.props.history.push("/help");
@@ -124,6 +128,19 @@ class Footer extends React.Component {
                     prevLabel: translator.translate("walkthrough.prev_label"),
                     skipLabel: translator.translate("walkthrough.skip_label"),
                     doneLabel: translator.translate("walkthrough.done_label")
+                })
+                .onbeforechange(element => {
+                    scrollableDiv.scrollTop = chartDiv.offsetHeight;
+                    if (
+                        element.className.includes(
+                            "exchange-content-header ask"
+                        )
+                    ) {
+                        scrollableDiv.scrollTop =
+                            scrollableDiv.scrollHeight -
+                            element.offsetHeight -
+                            element.offsetParent.offsetHeight;
+                    }
                 })
                 .start();
         }
