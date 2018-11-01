@@ -2,7 +2,7 @@ import React from "react";
 import {ChainStore} from "bitsharesjs";
 import AccountStore from "stores/AccountStore";
 import NotificationStore from "stores/NotificationStore";
-import {Route, Switch, withRouter, Redirect} from "react-router-dom";
+import {Route, Switch, withRouter} from "react-router-dom";
 import SyncError from "./components/SyncError";
 import LoadingIndicator from "./components/LoadingIndicator";
 import BrowserNotifications from "./components/BrowserNotifications/BrowserNotificationsContainer";
@@ -341,11 +341,6 @@ class App extends React.Component {
             );
         } else if (__DEPRECATED__) {
             content = <Deprecate {...this.props} />;
-        } else if (
-            this.state.errorModule &&
-            window.location.pathname !== "/error"
-        ) {
-            return <Redirect to="/error" />;
         } else {
             content = (
                 <div className="grid-frame vertical">
@@ -469,40 +464,44 @@ class App extends React.Component {
         }
 
         return (
-            <div
-                style={{backgroundColor: !theme ? "#2a2a2a" : null}}
-                className={theme}
-            >
-                <BodyClassName className={theme}>
-                    {walletMode && incognito && !incognitoWarningDismissed ? (
-                        <Incognito
-                            onClickIgnore={this._onIgnoreIncognitoWarning.bind(
-                                this
-                            )}
-                        />
-                    ) : null}
-                    <div id="content-wrapper">
-                        {content}
-                        <NotificationSystem
-                            ref="notificationSystem"
-                            allowHTML={true}
-                            style={{
-                                Containers: {
-                                    DefaultStyle: {
-                                        width: "425px"
+            <Page500 theme={theme}>
+                <div
+                    style={{backgroundColor: !theme ? "#2a2a2a" : null}}
+                    className={theme}
+                >
+                    <BodyClassName className={theme}>
+                        {walletMode &&
+                        incognito &&
+                        !incognitoWarningDismissed ? (
+                            <Incognito
+                                onClickIgnore={this._onIgnoreIncognitoWarning.bind(
+                                    this
+                                )}
+                            />
+                        ) : null}
+                        <div id="content-wrapper">
+                            {content}
+                            <NotificationSystem
+                                ref="notificationSystem"
+                                allowHTML={true}
+                                style={{
+                                    Containers: {
+                                        DefaultStyle: {
+                                            width: "425px"
+                                        }
                                     }
-                                }
-                            }}
-                        />
-                        <TransactionConfirm />
-                        <BrowserNotifications />
-                        <WalletUnlockModal />
-                        {/* <ReportModal /> */}
-                        <BrowserSupportModal ref="browser_modal" />
-                    </div>
-                    <div id="screenshot" />
-                </BodyClassName>
-            </div>
+                                }}
+                            />
+                            <TransactionConfirm />
+                            <BrowserNotifications />
+                            <WalletUnlockModal />
+                            {/* <ReportModal /> */}
+                            <BrowserSupportModal ref="browser_modal" />
+                        </div>
+                        <div id="screenshot" />
+                    </BodyClassName>
+                </div>
+            </Page500>
         );
     }
 }

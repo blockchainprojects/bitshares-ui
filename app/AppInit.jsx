@@ -52,28 +52,70 @@ class AppInit extends React.Component {
             apiError: false,
             syncError: null,
             status: "",
+            extendeLogText: [],
             errorModule: false
         };
+        this.mounted = true;
     }
 
-    componentDidCatch(error, errorInfo) {
-        LogsActions.setLog({
-            type: "query",
-            log: {error, errorInfo}
-        });
-        this.setState({errorModule: true});
+    componentDidUpdate(nextProps, nextState) {
+        LogsActions.setLog(nextState.extendeLogText);
     }
+    saveExtendedLog(type, logText) {
+        const maxlogslength = 19;
+        const logState = this.state.extendeLogText;
+        var text = "";
 
+        for (const value of logText) {
+            text += value;
+        }
+        text = ["~ ", type, ": ", text].join("");
+        if (logState.length > maxlogslength) {
+            logState.splice(0, 1);
+        }
+        if (text.indexOf(logState[logState.length - 1])) {
+            logState.push(text);
+            if (this.mounted) {
+                this.setState({extendeLogText: logState});
+            } else {
+                LogsActions.setLog(logState);
+            }
+        }
+    }
     componentWillMount() {
+        if (!this.state.extendeLogText.length) {
+            LogsActions.getLogs().then(data => {
+                if (data) {
+                    this.setState({extendeLogText: data});
+                }
+            });
+        }
+
+        const thiz = this;
+        const saveLog = (type, log) => {
+            if (
+                log.length > 1 &&
+                typeof log[1] === "string" &&
+                log[1] === "html2canvas:"
+            ) {
+                return;
+            }
+            thiz.saveExtendedLog(type, Array.from(log));
+            if (thiz.mounted) {
+                console[`str${type}`].apply(console, log);
+            }
+        };
+
+        // see https://www.sitepoint.com/javascript-decorators-what-they-are/ for decorator
+
+        // see https://stackoverflow.com/questions/9559725/extending-console-log-without-affecting-log-line for line numbers
+
         console.strlog = console.log.bind(console);
         console.strerror = console.error.bind(console);
         console.strwarn = console.warn.bind(console);
         console.strinfo = console.info.bind(console);
-
-        const saveLog = (type, log) => {
-            LogsActions.setLog({type, log: Array.from(log)});
-            console[`str${type}`].apply(console, log);
-        };
+        console.strtimeEnd = console.timeEnd.bind(console);
+        console.strdebug = console.debug.bind(console);
 
         console.log = function() {
             saveLog("log", arguments);
@@ -87,9 +129,11 @@ class AppInit extends React.Component {
         console.info = function() {
             saveLog("info", arguments);
         };
-
-        window.onerror = function(errorMsg, url, lineNumber) {
-            saveLog("window.onerror", {errorMsg, url, lineNumber});
+        console.timeEnd = function() {
+            saveLog("timeEnd", arguments);
+        };
+        console.debug = function() {
+            saveLog("debug", arguments);
         };
 
         willTransitionTo(true, this._statusCallback.bind(this))
@@ -115,6 +159,7 @@ class AppInit extends React.Component {
     }
 
     componentDidMount() {
+        this.mounted = true;
         //Detect OS for platform specific fixes
         if (navigator.platform.indexOf("Win") > -1) {
             var main = document.getElementById("content");
@@ -126,6 +171,10 @@ class AppInit extends React.Component {
                     windowsClass;
             }
         }
+    }
+
+    componentWillUnmount() {
+        this.mounted = false;
     }
 
     _statusCallback(status) {
