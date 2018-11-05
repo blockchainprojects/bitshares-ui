@@ -108,10 +108,20 @@ class Footer extends React.Component {
 
         var hintData = document.querySelectorAll("[data-intro]");
         var theme = SettingsStore.getState().settings.get("themes");
-        let scrollableDiv = document.getElementsByClassName(
-            "grid-block vertical no-padding ps-container"
+        const scrollableDiv =
+            document.getElementsByClassName(
+                "grid-block vertical no-padding ps-container"
+            )[0] || false;
+        const chartDiv = document.getElementsByClassName(
+            "exchange-bordered"
         )[0];
-        let chartDiv = document.getElementsByClassName("exchange-bordered")[0];
+        const bodyWidth = document.body.clientWidth;
+        const isSmall = () => {
+            return bodyWidth <= 800 && bodyWidth >= 640;
+        };
+        const isTiny = () => {
+            return bodyWidth < 640;
+        };
 
         if (hintData.length == 0) {
             this.props.history.push("/help");
@@ -130,16 +140,56 @@ class Footer extends React.Component {
                     doneLabel: translator.translate("walkthrough.done_label")
                 })
                 .onbeforechange(element => {
-                    scrollableDiv.scrollTop = chartDiv.offsetHeight;
                     if (
-                        element.className.includes(
-                            "exchange-content-header ask"
-                        )
+                        element.className.includes("buy-form") ||
+                        element.className.includes("sell-form") ||
+                        element.className.includes("exchange-content-header")
                     ) {
-                        scrollableDiv.scrollTop =
-                            scrollableDiv.scrollHeight -
-                            element.offsetHeight -
-                            element.offsetParent.offsetHeight;
+                        if (scrollableDiv) {
+                            if (isSmall()) {
+                                if (element.className.includes("sell-form")) {
+                                    return (scrollableDiv.scrollTop =
+                                        element.offsetParent.offsetTop +
+                                        element.offsetHeight);
+                                }
+                                if (
+                                    element.className.includes(
+                                        "exchange-content-header ask"
+                                    )
+                                ) {
+                                    return (scrollableDiv.scrollTop =
+                                        chartDiv.offsetHeight +
+                                        element.offsetParent.offsetTop +
+                                        element.parentElement.offsetHeight);
+                                }
+                                if (
+                                    element.className.includes(
+                                        "exchange-content-header bid"
+                                    )
+                                ) {
+                                    return (scrollableDiv.scrollTop =
+                                        chartDiv.offsetHeight +
+                                        element.offsetParent.offsetTop);
+                                }
+                                return (scrollableDiv.scrollTop =
+                                    element.offsetParent.offsetTop);
+                            } else if (isTiny()) {
+                                return;
+                            } else {
+                                if (
+                                    element.className.includes(
+                                        "exchange-content-header"
+                                    )
+                                ) {
+                                    return (scrollableDiv.scrollTop =
+                                        chartDiv.offsetHeight +
+                                        element.offsetParent.offsetTop);
+                                } else {
+                                    return (scrollableDiv.scrollTop =
+                                        element.offsetParent.offsetTop);
+                                }
+                            }
+                        }
                     }
                 })
                 .start();
