@@ -152,7 +152,7 @@ class SendModal extends React.Component {
             precision: asset.get("precision")
         });
 
-        this.setState({hidden: true});
+        this.setState({hidden: true, isModalVisible: false});
 
         AccountActions.transfer(
             this.state.from_account.get("id"),
