@@ -1,6 +1,11 @@
 import {Apis} from "bitsharesjs-ws";
 import {ChainStore, FetchChain} from "bitsharesjs";
-import {Tabs, Collapse, Icon as AntIcon} from "bitshares-ui-style-guide";
+import {
+    Tabs,
+    Collapse,
+    Icon as AntIcon,
+    Select
+} from "bitshares-ui-style-guide";
 import cnames from "classnames";
 import translator from "counterpart";
 import guide from "intro.js";
@@ -36,6 +41,7 @@ import SimpleDepositBlocktradesBridge from "../Dashboard/SimpleDepositBlocktrade
 import {Notification} from "bitshares-ui-style-guide";
 import PriceAlert from "./PriceAlert";
 import counterpart from "counterpart";
+import {Button} from "antd";
 class Exchange extends React.Component {
     static propTypes = {
         marketCallOrders: PropTypes.object.isRequired,
@@ -348,7 +354,10 @@ class Exchange extends React.Component {
             panelTabsActive: {
                 1: "",
                 2: ""
-            }
+            },
+            showHeader: false,
+            currentMin: "1m",
+            currentHour: "1H"
         };
     }
 
@@ -1777,6 +1786,66 @@ class Exchange extends React.Component {
             mobileKey: val
         });
     }
+    _toggleHeader() {
+        let chartType = this.state.chartType;
+        this.setState({
+            showHeader: !this.state.showHeader,
+            chartType: "hidden_chart"
+        });
+
+        // force reload
+        setTimeout(() => {
+            this.setState({
+                chartType: chartType
+            });
+        }, 100);
+    }
+    _onBucketSizeChange(e) {
+        let bucketSize;
+        if (typeof e !== "object") {
+            if (e.includes("m")) {
+                bucketSize = parseInt(e.slice(0, -1) * 60);
+                this.setState({
+                    currentMin: e,
+                    currentHour: "1H"
+                });
+            }
+            if (e.includes("H")) {
+                bucketSize = parseInt(e.slice(0, -1) * 60 * 60);
+                this.setState({
+                    currentHour: e,
+                    currentMin: "1m"
+                });
+            }
+        }
+
+        if (typeof e == "object") {
+            e.preventDefault();
+            bucketSize = e.target.value;
+            this.setState({
+                currentHour: "1H",
+                currentMin: "1m"
+            });
+        }
+
+        if (typeof e == "number") {
+            bucketSize = parseInt(e);
+        }
+
+        if (bucketSize !== this.props.bucketSize) {
+            let currentSub = this.props.sub.split("_");
+            MarketsActions.changeBucketSize(bucketSize);
+            MarketsActions.unSubscribeMarket(currentSub[0], currentSub[1]).then(
+                () => {
+                    MarketsActions.subscribeMarket(
+                        this.props.baseAsset,
+                        this.props.quoteAsset,
+                        bucketSize
+                    );
+                }
+            );
+        }
+    }
 
     render() {
         let {
@@ -1843,7 +1912,9 @@ class Exchange extends React.Component {
             orderBookReversed,
             chartZoom,
             chartTools,
-            hideFunctionButtons
+            hideFunctionButtons,
+            currentMin,
+            currentHour
         } = this.state;
         const {isFrozen, frozenAsset} = this.isMarketFrozen();
 
@@ -2404,10 +2475,8 @@ class Exchange extends React.Component {
 
         let settlementOrders =
             marketSettleOrders.size === 0 ||
-            (
-                tinyScreen &&
-                !this.state.mobileKey.includes("settlementOrders")
-            ) ? null : (
+            (tinyScreen &&
+                !this.state.mobileKey.includes("settlementOrders")) ? null : (
                 <MyOpenOrders
                     key={`actionCard_${actionCardIndex++}`}
                     style={{marginBottom: !tinyScreen ? 15 : 0}}
@@ -2461,6 +2530,7 @@ class Exchange extends React.Component {
                     chartZoom={tinyScreen ? false : chartZoom}
                     chartTools={tinyScreen ? false : chartTools}
                     mobile={tinyScreen}
+                    showHeader={this.state.showHeader}
                 />
             );
 
@@ -2500,6 +2570,100 @@ class Exchange extends React.Component {
                     activePanels={activePanels}
                 />
             );
+
+        let minutes = [1, 3, 5, 15, 30];
+        let hours = [1, 2, 4, 6, 12];
+        let options = (arr, name) => {
+            return arr.map(min => {
+                return (
+                    <Select.Option value={min + name}>
+                        {min}
+                        {name}
+                    </Select.Option>
+                );
+            });
+        };
+        let tradingChartHeader = (
+            <div
+                className={
+                    "trading-chart-header container shrink overflow-visible"
+                }
+                style={{height: 33, minWidth: 720}}
+            >
+                <div>
+                    <Select
+                        placeholder={counterpart.translate(
+                            "settings.placeholder_select"
+                        )}
+                        value={currentMin}
+                        onSelect={this._onBucketSizeChange.bind(this)}
+                    >
+                        {options(minutes, "m")}
+                    </Select>
+                    <Select
+                        placeholder={counterpart.translate(
+                            "settings.placeholder_select"
+                        )}
+                        value={currentHour}
+                        onSelect={this._onBucketSizeChange.bind(this)}
+                    >
+                        {options(hours, "H")}
+                    </Select>
+                    <Button
+                        value={86400}
+                        onClick={this._onBucketSizeChange.bind(this)}
+                    >
+                        1D
+                    </Button>
+                    <Button
+                        value={604800}
+                        onClick={this._onBucketSizeChange.bind(this)}
+                    >
+                        1W
+                    </Button>
+                    <Button
+                        type="primary"
+                        value={2419200}
+                        onClick={this._onBucketSizeChange.bind(this)}
+                    >
+                        1M
+                    </Button>
+
+                    <div style={{float: "right"}}>
+                        {chartType == "market_depth" ? (
+                            <Button
+                                onClick={() => {
+                                    this._toggleChart("price_chart");
+                                }}
+                            >
+                                {counterpart.translate("exchange.order_depth")}
+                            </Button>
+                        ) : (
+                            <Button
+                                onClick={() => {
+                                    this._toggleChart("market_depth");
+                                }}
+                            >
+                                {counterpart.translate(
+                                    "exchange.price_history"
+                                )}
+                            </Button>
+                        )}
+
+                        <Button onClick={this._chartZoom}>
+                            {this.state.chartZoom
+                                ? "Disable Zoom"
+                                : "Enable Zoom"}
+                        </Button>
+                        <Button onClick={this._toggleHeader.bind(this)}>
+                            {this.state.showHeader
+                                ? "Hide header"
+                                : "Show header"}
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        );
 
         /***
          * Generate tabs based on Layout
@@ -2823,14 +2987,16 @@ class Exchange extends React.Component {
                     >
                         {marketHistory}
                     </Collapse.Panel>
-                    {settlementOrders !== null ? 
+                    {settlementOrders !== null ? (
                         <Collapse.Panel
-                            header={translator.translate("exchange.settle_orders")}
+                            header={translator.translate(
+                                "exchange.settle_orders"
+                            )}
                             key="settlementOrders"
                         >
                             {settlementOrders}
-                        </Collapse.Panel> : null
-                    }
+                        </Collapse.Panel>
+                    ) : null}
                     <Collapse.Panel
                         header={translator.translate("exchange.my_history")}
                         key="myMarketHistory"
@@ -3139,6 +3305,7 @@ class Exchange extends React.Component {
                         >
                             {!tinyScreen ? (
                                 <div>
+                                    {tradingChartHeader}
                                     {/* Price history chart */}
                                     {chartType && chartType == "price_chart" ? (
                                         <div

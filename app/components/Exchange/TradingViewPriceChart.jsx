@@ -36,10 +36,14 @@ export default class TradingViewPriceChart extends React.Component {
             "symbol_search_hot_key",
             "border_around_the_chart",
             "header_symbol_search",
-            "header_compare"
+            "header_compare",
+            "timeframes_toolbar"
         ];
 
         let enabled_features = [];
+        if (!this.props.showHeader) {
+            disabled_features.push("header_widget");
+        }
 
         if (this.props.mobile || !this.props.chartZoom) {
             disabled_features.push("chart_scroll");
@@ -118,6 +122,7 @@ export default class TradingViewPriceChart extends React.Component {
     }
 
     componentWillReceiveProps(np) {
+        if (np.bucketSize === this.props.bucketSize) return;
         if (!np.marketReady) return;
         if (!this.props.dataFeed && np.dataFeed) {
             loadTradingView(np);
@@ -142,9 +147,11 @@ export default class TradingViewPriceChart extends React.Component {
     }
 
     shouldComponentUpdate(np) {
+        if (np.bucketSize !== this.props.bucketSize) return true;
         if (np.chartHeight !== this.props.chartHeight) return true;
         if (!!this.tvWidget) return false;
         if (!np.marketReady) return false;
+        if (np.showHeader !== this.props.showHeader) return true;
         return true;
     }
 

@@ -76,6 +76,7 @@ function getResolutionsFromBuckets(buckets) {
             let minute = r / 60;
             let day = minute / 60 / 24;
             let week = day / 7;
+            let month = week / 4;
 
             if (minute < 1) {
                 // below 1 minute we return Seconds
@@ -92,10 +93,18 @@ function getResolutionsFromBuckets(buckets) {
                     }
                 }
             } else {
+                //we returns month
+                if (month >= 1) {
+                    if (parseInt(month, 10) === month) {
+                        if (month === 1) return "M";
+                        return month + "M";
+                    }
+                }
                 // we return weeks
                 if (week >= 1) {
                     if (parseInt(week, 10) === week) {
-                        return week + "D";
+                        if (week === 1) return "W";
+                        return week + "W";
                     }
                 }
             }
@@ -109,9 +118,11 @@ function getResolutionsFromBuckets(buckets) {
 
 function getBucketFromResolution(r) {
     if (r === "D") return 24 * 60 * 60;
+    if (r === "W") return 24 * 60 * 60 * 7;
+    if (r === "M") return 24 * 60 * 60 * 30;
 
     if (r.indexOf("W") !== -1) {
-        return parseInt(r.replace("D", ""), 10) * 7 * 24 * 60 * 60;
+        return parseInt(r.replace("W", ""), 10) * 7 * 24 * 60 * 60;
     } else if (r.indexOf("D") !== -1) {
         return parseInt(r.replace("D", ""), 10) * 24 * 60 * 60;
     } else if (r.indexOf("S") !== -1) {
@@ -126,9 +137,21 @@ class DataFeed {
         for (let key in options) {
             switch (key) {
                 case "resolutions":
-                    this.supported_resolutions = getResolutionsFromBuckets(
-                        options.resolutions
-                    );
+                    this.supported_resolutions = [
+                        "1",
+                        "3",
+                        "5",
+                        "15",
+                        "30",
+                        "60",
+                        "120",
+                        "240",
+                        "360",
+                        "720",
+                        "D",
+                        "W",
+                        "M"
+                    ];
                     break;
 
                 case "onMarketChange":
