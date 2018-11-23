@@ -270,7 +270,6 @@ module.exports = function(env) {
                     include: [
                         path.join(root_dir, "app"),
                         path.join(root_dir, "node_modules/react-datepicker2"),
-                        path.join(root_dir, "node_modules/alt-container"),
                         path.join(root_dir, "node_modules/alt-react")
                     ],
                     use: [
@@ -380,7 +379,7 @@ module.exports = function(env) {
                 "node_modules"
             ],
             extensions: [".js", ".jsx", ".coffee", ".json"],
-            mainFields: ["module", "jsnext:main", "browser", "main"],
+            mainFields: ["module", "browser", "main"],
             alias: {
                 sanitize$: "xss",
                 moment$: path.resolve(
