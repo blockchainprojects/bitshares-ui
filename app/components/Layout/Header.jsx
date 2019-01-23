@@ -50,7 +50,9 @@ class Header extends React.Component {
             dropdownActive: false,
             dropdownSubmenuActive: false,
             isDepositModalVisible: false,
-            isWithdrawModalVisible: false
+            hasDepositModalBeenShown: false,
+            isWithdrawModalVisible: false,
+            hasWithdrawalModalBeenShown: false
         };
 
         this.unlisten = null;
@@ -77,7 +79,8 @@ class Header extends React.Component {
 
     showDepositModal() {
         this.setState({
-            isDepositModalVisible: true
+            isDepositModalVisible: true,
+            hasDepositModalBeenShown: true
         });
     }
 
@@ -89,7 +92,8 @@ class Header extends React.Component {
 
     showWithdrawModal() {
         this.setState({
-            isWithdrawModalVisible: true
+            isWithdrawModalVisible: true,
+            hasWithdrawalModalBeenShown: true
         });
     }
 
@@ -188,7 +192,7 @@ class Header extends React.Component {
                 if (!isPersistantType()) {
                     setLocalStorageType("persistant");
                 }
-                AccountStore.reset();
+                AccountStore.tryToSetCurrentAccount();
             }
         }
         this._closeDropdown();
@@ -502,6 +506,23 @@ class Header extends React.Component {
                 </a>
             );
         }
+        if (active.indexOf("spotlight") !== -1) {
+            dynamicMenuItem = (
+                <a style={{flexFlow: "row"}} className={cnames({active: true})}>
+                    <Icon
+                        size="1_5x"
+                        style={{position: "relative", top: 0, left: -8}}
+                        name="showcases"
+                        title="icons.showcases"
+                    />
+                    <Translate
+                        className="column-hide-small"
+                        component="span"
+                        content="header.showcases"
+                    />
+                </a>
+            );
+        }
         if (active.indexOf("settings") !== -1) {
             dynamicMenuItem = (
                 <a
@@ -739,6 +760,52 @@ class Header extends React.Component {
                         className="column-hide-small"
                         component="span"
                         content="account.permissions"
+                    />
+                </a>
+            );
+        }
+
+        if (active.indexOf("/borrow") !== -1) {
+            dynamicMenuItem = (
+                <a
+                    style={{flexFlow: "row"}}
+                    className={cnames({
+                        active: active.indexOf("/borrow") !== -1
+                    })}
+                >
+                    <Icon
+                        size="1_5x"
+                        style={{position: "relative", top: 0, left: -8}}
+                        name="borrow"
+                        title="icons.borrow"
+                    />
+                    <Translate
+                        className="column-hide-small"
+                        component="span"
+                        content="showcases.borrow.title"
+                    />
+                </a>
+            );
+        }
+
+        if (active.indexOf("/barter") !== -1) {
+            dynamicMenuItem = (
+                <a
+                    style={{flexFlow: "row"}}
+                    className={cnames({
+                        active: active.indexOf("/barter") !== -1
+                    })}
+                >
+                    <Icon
+                        size="1_5x"
+                        style={{position: "relative", top: 0, left: -8}}
+                        name="barter"
+                        title="icons.barter"
+                    />
+                    <Translate
+                        className="column-hide-small"
+                        component="span"
+                        content="showcases.barter.title"
                     />
                 </a>
             );
@@ -1056,6 +1123,41 @@ class Header extends React.Component {
                                     />
                                 </a>
                             </li>
+                            {/*                            <li>
+                                <a
+                                    style={{flexFlow: "row"}}
+                                    className={cnames(
+                                        active.indexOf("showcases") !== -1
+                                            ? null
+                                            : "column-hide-xs",
+                                        {
+                                            active:
+                                                active.indexOf("showcases") !==
+                                                -1
+                                        }
+                                    )}
+                                    onClick={this._onNavigate.bind(
+                                        this,
+                                        "/showcases"
+                                    )}
+                                >
+                                    <Icon
+                                        size="2x"
+                                        style={{
+                                            position: "relative",
+                                            top: 0,
+                                            left: -8
+                                        }}
+                                        name="showcases"
+                                        title="icons.showcases"
+                                    />
+                                    <Translate
+                                        className="column-hide-small"
+                                        component="span"
+                                        content="header.showcases"
+                                    />
+                                </a>
+                            </li>*/}
                             {/* Dynamic Menu Item */}
                             <li>{dynamicMenuItem}</li>
                         </ul>
@@ -1068,13 +1170,14 @@ class Header extends React.Component {
                 >
                     <AccountBrowsingMode location={this.props.location} />
                     <div>
-                        <div
-                            className="text account-name"
-                        >
+                        <div className="text account-name">
                             <span onClick={this._toggleAccountDropdownMenu}>
                                 {currentAccount}
                             </span>
-                            <AccountBrowsingMode location={this.props.location} usernameViewIcon={true} />
+                            <AccountBrowsingMode
+                                location={this.props.location}
+                                usernameViewIcon={true}
+                            />
                         </div>
                         {walletBalance}
                     </div>
@@ -1185,24 +1288,29 @@ class Header extends React.Component {
                     }}
                     from_name={currentAccount}
                 />
-
-                <DepositModal
-                    visible={this.state.isDepositModalVisible}
-                    hideModal={this.hideDepositModal}
-                    showModal={this.showDepositModal}
-                    ref="deposit_modal_new"
-                    modalId="deposit_modal_new"
-                    account={currentAccount}
-                    backedCoins={this.props.backedCoins}
-                />
-                <WithdrawModal
-                    visible={this.state.isWithdrawModalVisible}
-                    hideModal={this.hideWithdrawModal}
-                    showModal={this.showWithdrawModal}
-                    ref="withdraw_modal_new"
-                    modalId="withdraw_modal_new"
-                    backedCoins={this.props.backedCoins}
-                />
+                {this.state.hasDepositModalBeenShown ||
+                    (this.state.isDepositModalVisible && (
+                        <DepositModal
+                            visible={this.state.isDepositModalVisible}
+                            hideModal={this.hideDepositModal}
+                            showModal={this.showDepositModal}
+                            ref="deposit_modal_new"
+                            modalId="deposit_modal_new"
+                            account={currentAccount}
+                            backedCoins={this.props.backedCoins}
+                        />
+                    ))}
+                {this.state.hasWithdrawalModalBeenShown ||
+                    (this.state.isWithdrawModalVisible && (
+                        <WithdrawModal
+                            visible={this.state.isWithdrawModalVisible}
+                            hideModal={this.hideWithdrawModal}
+                            showModal={this.showWithdrawModal}
+                            ref="withdraw_modal_new"
+                            modalId="withdraw_modal_new"
+                            backedCoins={this.props.backedCoins}
+                        />
+                    ))}
             </div>
         );
     }

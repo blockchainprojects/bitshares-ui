@@ -119,6 +119,8 @@ export default class TradingViewPriceChart extends React.Component {
                 onMarketChange: this._setSymbol.bind(this)
             });
         });
+
+        this._onWheel = this._onWheel.bind(this);
     }
 
     componentWillReceiveProps(np) {
@@ -140,6 +142,10 @@ export default class TradingViewPriceChart extends React.Component {
 
     componentDidMount() {
         this.loadTradingView(this.props);
+
+        // continue investigating how to disable mouse wheel, here are the containted docs
+        // document.getElementById("tv_chart").children[0].contentWindow
+        // document.getElementById("tv_chart").children[0].contentDocument
     }
 
     componentWillUnmount() {
@@ -153,6 +159,10 @@ export default class TradingViewPriceChart extends React.Component {
         if (!np.marketReady) return false;
         if (np.showHeader !== this.props.showHeader) return true;
         return true;
+    }
+
+    _onWheel(e) {
+        console.log("Test wheel interception");
     }
 
     render() {
