@@ -319,11 +319,6 @@ module.exports = function(env) {
                     ]
                 },
 
-                // {
-                //     test: /node_modules\/(pdfkit|fontkit|png-js|linebreak|unicode-properties|brotli)\//,
-                //     loader: "transform-loader?brfs"
-                // },
-
                 {
                     test: /\.woff$/,
                     use: [

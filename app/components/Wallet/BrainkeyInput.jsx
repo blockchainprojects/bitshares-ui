@@ -36,7 +36,6 @@ export default class BrainkeyInput extends Component {
                     });
                 })
                 .catch(err => {
-                    ErrorActions.setError("BrainkeyInput", error);
                     console.log("fetch dictionary error:", err);
                 });
         } else {

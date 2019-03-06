@@ -23,7 +23,7 @@ class WalletUnlockActions {
 
     lock() {
         return dispatch => {
-            return new Promise(resolve, reject => {
+            return new Promise(resolve => {
                 dispatch({resolve});
             }).then(was_unlocked => {
                 if (was_unlocked) WrappedWalletUnlockActions.change();

@@ -53,8 +53,7 @@ class AppInit extends React.Component {
             apiError: false,
             syncError: null,
             status: "",
-            extendeLogText: [], // used to cache logs when not mounted
-            errorModule: false
+            extendeLogText: [] // used to cache logs when not mounted
         };
         this.mounted = true;
         this.persistentLogEnabled = false;
