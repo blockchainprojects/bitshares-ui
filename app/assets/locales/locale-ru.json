@@ -1500,14 +1500,6 @@
         "page_not_found_subtitle": "Эта страница не существует.",
         "page_not_found_title": "404 Страница не найдена"
     },
-    "page500": {
-        "asset_not_found_subtitle": "Что-то пошло не так...",
-        "home": "Домой",
-        "page_not_found_subtitle": "Критическая ошибка",
-        "page_not_found_title": "500 страница",
-        "showLogs": "Показать логи",
-        "hideLogs": "Скрыть логи"
-    },
     "pagination": {
         "newer": "Новые",
         "older": "Предыдущие"
