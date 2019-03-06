@@ -29,12 +29,20 @@ import {
     scrollSpy,
     scroller
 } from "react-scroll";
+import {Tooltip} from "bitshares-ui-style-guide";
 
 require("./operations.scss");
 require("./json-inspector.scss");
 
 let ops = Object.keys(operations);
 let listings = Object.keys(account_constants.account_listing);
+
+const TranslateBoolean = ({value, ...otherProps}) => (
+    <Translate
+        content={`boolean.${value ? "true" : "false"}`}
+        {...otherProps}
+    />
+);
 
 class OpType extends React.Component {
     shouldComponentUpdate(nextProps) {
@@ -284,18 +292,18 @@ class Transaction extends React.Component {
 
                     rows.push(
                         <tr key={key++}>
-                            <td
-                                data-place="left"
-                                data-class="tooltip-zindex"
-                                className="tooltip"
-                                data-tip={counterpart.translate(
-                                    "tooltip.buy_min"
-                                )}
-                            >
-                                <Translate
-                                    component="span"
-                                    content="exchange.buy_min"
-                                />
+                            <td>
+                                <Tooltip
+                                    placement="left"
+                                    title={counterpart.translate(
+                                        "tooltip.buy_min"
+                                    )}
+                                >
+                                    <Translate
+                                        component="span"
+                                        content="exchange.buy_min"
+                                    />
+                                </Tooltip>
                             </td>
                             <td>
                                 <FormattedAsset
@@ -1796,7 +1804,48 @@ class Transaction extends React.Component {
 
                     break;
 
-                // proposal_delete
+                case "proposal_delete":
+                    color = "cancel";
+                    rows.push(
+                        <tr key={key++}>
+                            <td>
+                                <Translate
+                                    component="span"
+                                    content="proposal_create.fee_paying_account"
+                                />
+                            </td>
+                            <td>
+                                {this.linkToAccount(op[1].fee_paying_account)}
+                            </td>
+                        </tr>
+                    );
+                    rows.push(
+                        <tr key={key++}>
+                            <td>
+                                <Translate
+                                    component="span"
+                                    content="proposal_delete.using_owner_authority"
+                                />
+                            </td>
+                            <td>
+                                <TranslateBoolean
+                                    value={op[1].using_owner_authority}
+                                />
+                            </td>
+                        </tr>
+                    );
+                    rows.push(
+                        <tr key={key++}>
+                            <td>
+                                <Translate
+                                    component="span"
+                                    content="proposal_create.id"
+                                />
+                            </td>
+                            <td>{op[1].proposal}</td>
+                        </tr>
+                    );
+                    break;
 
                 case "asset_claim_fees":
                     color = "success";
@@ -2058,8 +2107,59 @@ class Transaction extends React.Component {
 
                     break;
 
+                case "bid_collateral":
+                    rows.push(
+                        <tr key={key++}>
+                            <td>
+                                <Translate
+                                    component="span"
+                                    content="explorer.account.title"
+                                />
+                            </td>
+                            <td>
+                                <LinkToAccountById account={op[1].bidder} />
+                            </td>
+                        </tr>
+                    );
+
+                    rows.push(
+                        <tr key={key++}>
+                            <td>
+                                <Translate
+                                    component="span"
+                                    content="explorer.asset.collateral_bid.collateral"
+                                />
+                            </td>
+                            <td>
+                                <FormattedAsset
+                                    asset={op[1].additional_collateral.asset_id}
+                                    amount={op[1].additional_collateral.amount}
+                                />
+                            </td>
+                        </tr>
+                    );
+
+                    rows.push(
+                        <tr key={key++}>
+                            <td>
+                                <Translate
+                                    component="span"
+                                    content="explorer.asset.collateral_bid.debt"
+                                />
+                            </td>
+                            <td>
+                                <FormattedAsset
+                                    asset={op[1].debt_covered.asset_id}
+                                    amount={op[1].debt_covered.amount}
+                                />
+                            </td>
+                        </tr>
+                    );
+
+                    break;
+
                 default:
-                    console.log("unimplemented op:", op);
+                    console.log("unimplemented tx op:", op);
 
                     rows.push(
                         <tr key={key++}>

@@ -10,6 +10,7 @@ import alt from "alt-instance";
 import {connect, supplyFluxContext} from "alt-react";
 import {IntlProvider} from "react-intl";
 import willTransitionTo from "./routerTransition";
+import {BodyClassName} from "bitshares-ui-style-guide";
 import LoadingIndicator from "./components/LoadingIndicator";
 import InitError from "./components/InitError";
 import SyncError from "./components/SyncError";
@@ -52,15 +53,25 @@ class AppInit extends React.Component {
             apiError: false,
             syncError: null,
             status: "",
-            extendeLogText: [],
+            extendeLogText: [], // used to cache logs when not mounted
             errorModule: false
         };
         this.mounted = true;
+        this.persistentLogEnabled = false;
+    }
+
+    /**
+     * Global error catching and forwarding to log handler
+     * @param error
+     */
+    componentDidCatch(error) {
+        this.saveExtendedLog("error", [error]);
     }
 
     componentDidUpdate(nextProps, nextState) {
         LogsActions.setLog(nextState.extendeLogText);
     }
+
     saveExtendedLog(type, logText) {
         const maxlogslength = 19;
         const logState = this.state.extendeLogText;
@@ -69,7 +80,7 @@ class AppInit extends React.Component {
         for (const value of logText) {
             text += value;
         }
-        text = ["~ ", type, ": ", text].join("");
+        text = [type, ": ", text].join("");
         if (logState.length > maxlogslength) {
             logState.splice(0, 1);
         }
@@ -82,7 +93,10 @@ class AppInit extends React.Component {
             }
         }
     }
-    componentWillMount() {
+
+    _enablePersistingLog() {
+        if (this.persistentLogEnabled) return;
+
         if (!this.state.extendeLogText.length) {
             LogsActions.getLogs().then(data => {
                 if (data) {
@@ -135,6 +149,14 @@ class AppInit extends React.Component {
         console.debug = function() {
             saveLog("debug", arguments);
         };
+
+        this.persistentLogEnabled = true;
+    }
+
+    componentWillMount() {
+        if (!__DEV__) {
+            this._enablePersistingLog();
+        }
 
         willTransitionTo(true, this._statusCallback.bind(this))
             .then(() => {
@@ -210,7 +232,9 @@ class AppInit extends React.Component {
                             ) : syncError ? (
                                 <SyncError />
                             ) : (
-                                <InitError />
+                                <BodyClassName className={theme}>
+                                    <InitError />
+                                </BodyClassName>
                             )}
                         </div>
                     </div>

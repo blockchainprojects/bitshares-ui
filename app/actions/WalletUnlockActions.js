@@ -25,14 +25,9 @@ class WalletUnlockActions {
         return dispatch => {
             return new Promise(resolve, reject => {
                 dispatch({resolve});
-            })
-                .then(was_unlocked => {
-                    if (was_unlocked) WrappedWalletUnlockActions.change();
-                })
-                .catch(error => {
-                    console.log("Error in MarketsActions.lock: ", error);
-                    reject(error);
-                });
+            }).then(was_unlocked => {
+                if (was_unlocked) WrappedWalletUnlockActions.change();
+            });
         };
     }
 

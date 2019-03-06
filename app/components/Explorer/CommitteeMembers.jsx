@@ -9,6 +9,7 @@ import SettingsActions from "actions/SettingsActions";
 import FormattedAsset from "../Utility/FormattedAsset";
 import SettingsStore from "stores/SettingsStore";
 import {Icon, Input, Table} from "bitshares-ui-style-guide";
+import sanitize from "sanitize";
 
 class CommitteeMemberList extends React.Component {
     static propTypes = {
@@ -77,7 +78,10 @@ class CommitteeMemberList extends React.Component {
                         rank: ranks[a.get("id")],
                         name: account.get("name"),
                         votes: account_data.get("total_votes"),
-                        url: account_data.get("url")
+                        url: sanitize(account_data.get("url"), {
+                            whiteList: [], // empty, means filter out all tags
+                            stripIgnoreTag: true // filter out all HTML not in the whilelist
+                        })
                     };
                 });
         }

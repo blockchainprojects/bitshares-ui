@@ -11,6 +11,56 @@ import counterpart from "counterpart";
 import AccessSettings from "./Settings/AccessSettings";
 
 class SyncError extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            isAddNodeModalVisible: false,
+            isRemoveNodeModalVisible: false,
+            removeNode: {
+                name: null,
+                url: null
+            }
+        };
+
+        this.showAddNodeModal = this.showAddNodeModal.bind(this);
+        this.hideAddNodeModal = this.hideAddNodeModal.bind(this);
+        this.showRemoveNodeModal = this.showRemoveNodeModal.bind(this);
+        this.hideRemoveNodeModal = this.hideRemoveNodeModal.bind(this);
+    }
+
+    showAddNodeModal() {
+        this.setState({
+            isAddNodeModalVisible: true
+        });
+    }
+
+    hideAddNodeModal() {
+        this.setState({
+            isAddNodeModalVisible: false
+        });
+    }
+
+    showRemoveNodeModal(url, name) {
+        this.setState({
+            isRemoveNodeModalVisible: true,
+            removeNode: {
+                url,
+                name
+            }
+        });
+    }
+
+    hideRemoveNodeModal() {
+        this.setState({
+            isRemoveNodeModalVisible: false,
+            removeNode: {
+                url: null,
+                name: null
+            }
+        });
+    }
+
     triggerModal(e) {
         this.refs.ws_modal.show(e);
     }
@@ -90,12 +140,19 @@ class SyncError extends React.Component {
                     <AccessSettings
                         nodes={props.apis}
                         onChange={this.onChangeWS.bind(this)}
-                        triggerModal={this.triggerModal.bind(this)}
+                        showAddNodeModal={this.showAddNodeModal}
+                        showRemoveNodeModal={this.showRemoveNodeModal}
                     />
                 </div>
 
                 <WebsocketAddModal
-                    ref="ws_modal"
+                    removeNode={this.state.removeNode}
+                    isAddNodeModalVisible={this.state.isAddNodeModalVisible}
+                    isRemoveNodeModalVisible={
+                        this.state.isRemoveNodeModalVisible
+                    }
+                    onAddNodeClose={this.hideAddNodeModal}
+                    onRemoveNodeClose={this.hideRemoveNodeModal}
                     apis={props.apis}
                     api={props.apiServer}
                 />

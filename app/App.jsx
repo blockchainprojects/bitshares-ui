@@ -2,7 +2,7 @@ import React from "react";
 import {ChainStore} from "bitsharesjs";
 import AccountStore from "stores/AccountStore";
 import NotificationStore from "stores/NotificationStore";
-import {Route, Switch, withRouter} from "react-router-dom";
+import {withRouter} from "react-router-dom";
 import SyncError from "./components/SyncError";
 import LoadingIndicator from "./components/LoadingIndicator";
 import BrowserNotifications from "./components/BrowserNotifications/BrowserNotificationsContainer";
@@ -18,8 +18,13 @@ import Incognito from "./components/Layout/Incognito";
 import {isIncognito} from "feature_detect";
 import {updateGatewayBackers} from "common/gatewayUtils";
 import titleUtils from "common/titleUtils";
-import {BodyClassName} from "bitshares-ui-style-guide";
+import {BodyClassName, Notification} from "bitshares-ui-style-guide";
+import {DEFAULT_NOTIFICATION_DURATION} from "services/Notification";
 import Loadable from "react-loadable";
+import Borrow from "./components/Showcases/Borrow";
+import Barter from "./components/Showcases/Barter";
+
+import {Route, Switch, Redirect} from "react-router-dom";
 
 // Nested route components
 import Page404 from "./components/Page404/Page404";
@@ -114,7 +119,13 @@ const CreateWorker = Loadable({
 });
 
 import LoginSelector from "./components/LoginSelector";
+import Login from "./components/Login/Login";
+import RegistrationSelector from "./components/Registration/RegistrationSelector";
+import WalletRegistration from "./components/Registration/WalletRegistration";
+import AccountRegistration from "./components/Registration/AccountRegistration";
 import {CreateWalletFromBrainkey} from "./components/Wallet/WalletCreate";
+import ShowcaseGrid from "./components/Showcases/ShowcaseGrid";
+import PriceAlertNotifications from "./components/PriceAlertNotifications";
 
 class App extends React.Component {
     constructor() {
@@ -127,6 +138,7 @@ class App extends React.Component {
                 ? true
                 : false;
         this.state = {
+            isBrowserSupportModalVisible: false,
             loading: false,
             synced: this._syncStatus(),
             syncFail,
@@ -141,6 +153,14 @@ class App extends React.Component {
         this._syncStatus = this._syncStatus.bind(this);
         this._getWindowHeight = this._getWindowHeight.bind(this);
         this.onErrorModule = this.onErrorModule.bind(this);
+
+        this.showBrowserSupportModal = this.showBrowserSupportModal.bind(this);
+        this.hideBrowserSupportModal = this.hideBrowserSupportModal.bind(this);
+
+        Notification.config({
+            duration: DEFAULT_NOTIFICATION_DURATION,
+            top: 90
+        });
     }
 
     componentWillUnmount() {
@@ -185,6 +205,18 @@ class App extends React.Component {
         }
     }
 
+    hideBrowserSupportModal() {
+        this.setState({
+            isBrowserSupportModalVisible: false
+        });
+    }
+
+    showBrowserSupportModal() {
+        this.setState({
+            isBrowserSupportModalVisible: true
+        });
+    }
+
     _syncStatus(setState = false) {
         let synced = this.getBlockTimeDelta() < 5;
         if (setState && synced !== this.state.synced) {
@@ -222,7 +254,7 @@ class App extends React.Component {
                 user_agent.indexOf("edge") > -1
             )
         ) {
-            this.refs.browser_modal.show();
+            this.showBrowserSupportModal();
         }
 
         this.props.history.listen(this._rebuildTooltips);
@@ -342,6 +374,13 @@ class App extends React.Component {
         } else if (__DEPRECATED__) {
             content = <Deprecate {...this.props} />;
         } else {
+            let accountName =
+                AccountStore.getState().currentAccount ||
+                AccountStore.getState().passwordAccount;
+            accountName =
+                accountName && accountName !== "null"
+                    ? accountName
+                    : "committee-account";
             content = (
                 <div className="grid-frame vertical">
                     <Header height={this.state.height} {...others} />
@@ -385,8 +424,29 @@ class App extends React.Component {
                                     path="/create-account"
                                     component={LoginSelector}
                                 />
+                                <Route path="/login" component={Login} />
+                                <Route
+                                    path="/registration"
+                                    exact
+                                    component={RegistrationSelector}
+                                />
+                                <Route
+                                    path="/registration/local"
+                                    exact
+                                    component={WalletRegistration}
+                                />
+                                <Route
+                                    path="/registration/cloud"
+                                    exact
+                                    component={AccountRegistration}
+                                />
                                 <Route path="/news" exact component={News} />
-
+                                <Redirect
+                                    path={"/voting"}
+                                    to={{
+                                        pathname: `/account/${accountName}/voting`
+                                    }}
+                                />
                                 {/* Explorer routes */}
                                 <Route
                                     path="/explorer/:tab"
@@ -406,6 +466,14 @@ class App extends React.Component {
                                     exact
                                     path="/block/:height/:txIndex"
                                     component={Block}
+                                />
+                                <Route path="/borrow" component={Borrow} />
+
+                                <Route path="/barter" component={Barter} />
+
+                                <Route
+                                    path="/spotlight"
+                                    component={ShowcaseGrid}
                                 />
 
                                 {/* Wallet backup/restore routes */}
@@ -494,11 +562,16 @@ class App extends React.Component {
                             />
                             <TransactionConfirm />
                             <BrowserNotifications />
+                            <PriceAlertNotifications />
                             <WalletUnlockModal />
-                            {/* <ReportModal /> */}
-                            <BrowserSupportModal ref="browser_modal" />
+                            <BrowserSupportModal
+                                visible={
+                                    this.state.isBrowserSupportModalVisible
+                                }
+                                hideModal={this.hideBrowserSupportModal}
+                                showModal={this.showBrowserSupportModal}
+                            />
                         </div>
-                        <div id="screenshot" />
                     </BodyClassName>
                 </div>
             </Page500>

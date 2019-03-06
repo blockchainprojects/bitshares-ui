@@ -10,12 +10,14 @@ import counterpart from "counterpart";
 import {ChainStore} from "bitsharesjs";
 import ExchangeHeaderCollateral from "./ExchangeHeaderCollateral";
 import {Icon as AntIcon} from "bitshares-ui-style-guide";
+import {Asset, Price} from "common/MarketClasses";
 
 export default class ExchangeHeader extends React.Component {
     constructor(props) {
         super();
 
         this.state = {
+            isModalVisible: false,
             volumeShowQuote: true,
             selectedMarketPickerAsset: props.selectedMarketPickerAsset
         };
@@ -73,9 +75,7 @@ export default class ExchangeHeader extends React.Component {
             marketReady,
             latestPrice,
             marketStats,
-            showDepthChart,
-            account,
-            exchangeLayout
+            account
         } = this.props;
 
         const baseSymbol = baseAsset.get("symbol");
@@ -120,6 +120,8 @@ export default class ExchangeHeader extends React.Component {
             : false;
         let collOrderObject = "";
         let settlePrice = null;
+        let settlePriceTitle = "exchange.settle";
+        let settlePriceTooltip = "tooltip.settle_price";
 
         if (isBitAsset) {
             if (account.toJS && account.has("call_orders")) {
@@ -145,18 +147,47 @@ export default class ExchangeHeader extends React.Component {
 
             /* Settlment Offset */
             let settleAsset =
-                baseAsset.get("id") == "1.3.0"
+                baseId == "1.3.0"
                     ? quoteAsset
-                    : quoteAsset.get("id") == "1.3.0"
+                    : quoteId == "1.3.0"
                         ? baseAsset
-                        : null;
+                        : quoteAsset;
 
-            if (settleAsset && feedPrice) {
+            // globally settled
+            if (possibleBitAsset.get("bitasset").get("settlement_fund") > 0) {
+                settlePriceTitle = "exchange.global_settle";
+                settlePriceTooltip = "tooltip.global_settle_price";
+                settlePrice = possibleBitAsset
+                    .get("bitasset")
+                    .get("settlement_price")
+                    .toJS();
+                // add precision
+                if (settlePrice.base.asset_id == baseAsset.get("id")) {
+                    settlePrice.base.precision = baseAsset.get("precision");
+                    settlePrice.quote.precision = quoteAsset.get("precision");
+                } else {
+                    settlePrice.quote.precision = baseAsset.get("precision");
+                    settlePrice.base.precision = quoteAsset.get("precision");
+                }
+                settlePrice = new Price({
+                    quote: new Asset({
+                        asset_id: settlePrice.quote.asset_id,
+                        precision: settlePrice.quote.precision,
+                        amount: settlePrice.quote.amount
+                    }),
+                    base: new Asset({
+                        asset_id: settlePrice.base.asset_id,
+                        precision: settlePrice.base.precision,
+                        amount: settlePrice.base.amount
+                    })
+                }).toReal();
+                settlePrice = baseId == "1.3.0" ? 1 / settlePrice : settlePrice;
+            } else if (settleAsset && feedPrice) {
                 let offset_percent = settleAsset
                     .getIn(["bitasset", "options"])
                     .toJS().force_settlement_offset_percent;
                 settlePrice =
-                    baseAsset.get("id") == "1.3.0"
+                    baseId == "1.3.0"
                         ? feedPrice.toReal() / (1 + offset_percent / 10000)
                         : feedPrice.toReal() * (1 + offset_percent / 10000);
             }
@@ -170,6 +201,10 @@ export default class ExchangeHeader extends React.Component {
         let isBaseSelected =
             !!this.state.selectedMarketPickerAsset &&
             this.state.selectedMarketPickerAsset == baseSymbol;
+
+        let PriceAlertBellClassName = this.props.hasAnyPriceAlert
+            ? "exchange--price-alert--show-modal--active"
+            : "";
 
         return (
             <div className="grid-block shrink no-padding overflow-visible top-bar">
@@ -186,6 +221,14 @@ export default class ExchangeHeader extends React.Component {
                                         marginTop: "1px"
                                     }}
                                 >
+                                    <AntIcon
+                                        onClick={this.props.showPriceAlertModal}
+                                        type={"bell"}
+                                        className={`exchange--price-alert--show-modal ${PriceAlertBellClassName}`}
+                                        data-intro={translator.translate(
+                                            "walkthrough.price_alerts"
+                                        )}
+                                    />
                                     <span
                                         onClick={this.marketPicker.bind(
                                             this,
@@ -346,11 +389,11 @@ export default class ExchangeHeader extends React.Component {
                                         content="exchange.feed_price"
                                     />
                                 ) : null}
-                                {!hasPrediction && feedPrice ? (
+                                {!hasPrediction && settlePrice ? (
                                     <PriceStatWithLabel
                                         ignoreColorChange={true}
                                         toolTip={counterpart.translate(
-                                            "tooltip.settle_price"
+                                            settlePriceTooltip
                                         )}
                                         ready={marketReady}
                                         className="hide-order-4"
@@ -358,7 +401,7 @@ export default class ExchangeHeader extends React.Component {
                                         quote={quoteAsset}
                                         base={baseAsset}
                                         market={marketID}
-                                        content="exchange.settle"
+                                        content={settlePriceTitle}
                                     />
                                 ) : null}
                                 {showCollateralRatio ? (
@@ -400,11 +443,18 @@ export default class ExchangeHeader extends React.Component {
                                     />
                                 ) : null}
                             </ul>
-                            <ul className="market-stats stats top-stats">
+                            <ul
+                                className="market-stats stats top-stats"
+                                data-position={"left"}
+                                data-step="1"
+                                data-intro={translator.translate(
+                                    "walkthrough.personalize"
+                                )}
+                            >
                                 <li
                                     className="stressed-stat input clickable"
                                     style={{padding: "16px 16px 16px 0px"}}
-                                    onClick={this.props.onToggleSettings.bind(
+                                    onClick={this.props.onTogglePersonalize.bind(
                                         this
                                     )}
                                 >
@@ -413,8 +463,8 @@ export default class ExchangeHeader extends React.Component {
                                         style={{paddingRight: 5}}
                                     />
                                     <Translate
-                                        className="column-hide-xs"
-                                        content="exchange.settings"
+                                        className="hide-order-2"
+                                        content="exchange.settings.header.title"
                                     />
                                 </li>
                             </ul>

@@ -1,23 +1,16 @@
 import alt from "alt-instance";
+import ls from "common/localStorage";
+
+const STORAGE_KEY = "__graphene__";
+let ss = new ls(STORAGE_KEY);
 
 class LogsActions {
-    setLog(log) {
-        return this.getLogs().then(data => {
-            let logs = data || [];
-
-            if (logs.length == 20) {
-                logs.splice(0, 1);
-            }
-
-            logs.push(log);
-
-            localStorage.setItem("logs", JSON.stringify(logs));
-        });
+    async setLog(log) {
+        return await ss.set("logs", JSON.stringify(log));
     }
-
     getLogs() {
         return new Promise(resolve => {
-            resolve(JSON.parse(localStorage.getItem("logs")));
+            resolve(JSON.parse(ss.get("logs", [])));
         });
     }
 

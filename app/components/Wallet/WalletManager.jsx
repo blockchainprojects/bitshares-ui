@@ -15,6 +15,7 @@ import WalletChangePassword from "./WalletChangePassword";
 import {WalletCreate} from "./WalletCreate";
 import {BackupCreate, BackupRestore} from "./Backup";
 import BackupBrainkey from "./BackupBrainkey";
+import {Card} from "bitshares-ui-style-guide";
 
 const connectObject = {
     listenTo() {
@@ -154,68 +155,59 @@ class WalletOptions extends Component {
             <span>
                 <div className="grid-block">
                     <div className="grid-content">
-                        <div className="card">
-                            <div className="card-content">
-                                <label>
-                                    <Translate content="wallet.active_wallet" />
-                                    :
-                                </label>
-                                <div>{current_wallet}</div>
-                                <br />
-                                {has_wallets ? (
-                                    <Link to="/wallet/change">
-                                        <div className="button outline success">
-                                            <Translate content="wallet.change_wallet" />
-                                        </div>
-                                    </Link>
-                                ) : null}
-                            </div>
-                        </div>
+                        <Card>
+                            <label>
+                                <Translate content="wallet.active_wallet" />:
+                            </label>
+                            <div>{current_wallet}</div>
+                            <br />
+                            {has_wallets ? (
+                                <Link to="/wallet/change">
+                                    <div className="button outline success">
+                                        <Translate content="wallet.change_wallet" />
+                                    </div>
+                                </Link>
+                            ) : null}
+                        </Card>
                     </div>
 
                     <div className="grid-content">
-                        <div className="card">
-                            <div className="card-content">
-                                <label>
-                                    <Translate content="wallet.import_keys_tool" />
-                                </label>
-                                <div style={{visibility: "hidden"}}>Dummy</div>
-                                <br />
-                                {has_wallet ? (
-                                    <Link to="/wallet/import-keys">
-                                        <div className="button outline success">
-                                            <Translate content="wallet.import_keys" />
-                                        </div>
-                                    </Link>
-                                ) : null}
-                            </div>
-                        </div>
+                        <Card>
+                            <label>
+                                <Translate content="wallet.import_keys_tool" />
+                            </label>
+                            <div style={{visibility: "hidden"}}>Dummy</div>
+                            <br />
+                            {has_wallet ? (
+                                <Link to="/wallet/import-keys">
+                                    <div className="button outline success">
+                                        <Translate content="wallet.import_keys" />
+                                    </div>
+                                </Link>
+                            ) : null}
+                        </Card>
                     </div>
 
                     {has_wallet ? (
                         <div className="grid-content">
-                            <div className="card">
-                                <div className="card-content">
-                                    <label>
-                                        <Translate content="wallet.balance_claims" />
-                                    </label>
-                                    <div style={{visibility: "hidden"}}>
-                                        Dummy
+                            <Card>
+                                <label>
+                                    <Translate content="wallet.balance_claims" />
+                                </label>
+                                <div style={{visibility: "hidden"}}>Dummy</div>
+                                <br />
+                                <Link to="/wallet/balance-claims">
+                                    <div className="button outline success">
+                                        <Translate content="wallet.balance_claim_lookup" />
                                     </div>
-                                    <br />
-                                    <Link to="/wallet/balance-claims">
-                                        <div className="button outline success">
-                                            <Translate content="wallet.balance_claim_lookup" />
-                                        </div>
-                                    </Link>
-                                    {/*<BalanceClaimByAsset>
+                                </Link>
+                                {/*<BalanceClaimByAsset>
                             <br/>
                             <div className="button outline success">
                                 <Translate content="wallet.balance_claims" /></div>
                         </BalanceClaimByAsset>
                         */}
-                                </div>
-                            </div>
+                            </Card>
                         </div>
                     ) : null}
                 </div>

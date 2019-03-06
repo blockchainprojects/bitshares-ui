@@ -23,6 +23,7 @@ import debounceRender from "react-debounce-render";
 import ZfApi from "react-foundation-apps/src/utils/foundation-api";
 import {getPossibleGatewayPrefixes, gatewayPrefixes} from "common/gateways";
 import QuoteSelectionModal from "./QuoteSelectionModal";
+import {Input, Icon} from "bitshares-ui-style-guide";
 
 class MarketGroup extends React.Component {
     static defaultProps = {
@@ -326,6 +327,7 @@ class MyMarkets extends React.Component {
         super();
 
         this.state = {
+            isQuoteModalVisible: false,
             inverseSort: props.viewSettings.get("myMarketsInvert", true),
             sortBy: props.viewSettings.get("myMarketsSort", "volume"),
             activeTab: props.viewSettings.get("favMarketTab", "my-market"),
@@ -340,6 +342,9 @@ class MyMarkets extends React.Component {
 
         this._setMinWidth = this._setMinWidth.bind(this);
         this.getAssetList = debounce(AssetActions.getAssetList.defer, 150);
+
+        this.showQuoteModal = this.showQuoteModal.bind(this);
+        this.hideQuoteModal = this.hideQuoteModal.bind(this);
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -418,7 +423,10 @@ class MyMarkets extends React.Component {
         }
 
         if (this.state.activeTab !== this.props.activeTab) {
-            this._changeTab(this.props.activeTab);
+            // todo: does this cause the flicking when switching?
+            setTimeout(() => {
+                this._changeTab(this.props.activeTab);
+            }, 100);
         }
     }
 
@@ -433,6 +441,18 @@ class MyMarkets extends React.Component {
         if (this.props.myMarketTab && !np.myMarketTab) {
             if (this.refs.findSearchInput) this.refs.findSearchInput.focus();
         }
+    }
+
+    hideQuoteModal() {
+        this.setState({
+            isQuoteModalVisible: false
+        });
+    }
+
+    showQuoteModal() {
+        this.setState({
+            isQuoteModalVisible: true
+        });
     }
 
     _setMinWidth() {
@@ -946,34 +966,31 @@ class MyMarkets extends React.Component {
                                     />
                                 </span>
                             </label>
+                            <br />
                         </div>
                         <div className="search-wrapper">
                             <form>
-                                <input
-                                    autoComplete="off"
-                                    style={{
-                                        fontSize: "0.9rem",
-                                        height: "inherit",
-                                        position: "relative",
-                                        top: 5,
-                                        padding: 5
-                                    }}
-                                    type="text"
-                                    className="no-margin market-filter-input"
-                                    placeholder={counterpart.translate(
-                                        "exchange.filter"
-                                    )}
-                                    maxLength="16"
-                                    name="focus"
-                                    required="required"
-                                    value={this.state.myMarketFilter}
-                                    onChange={this.handleSearchUpdate}
-                                />
-                                <button
-                                    className="clear-text"
-                                    type="reset"
-                                    onClick={this.clearInput}
-                                />
+                                <div className="filter inline-block">
+                                    <Input
+                                        autoComplete="off"
+                                        style={{
+                                            fontSize: "0.9rem",
+                                            height: "inherit",
+                                            position: "relative"
+                                        }}
+                                        type="text"
+                                        className="no-margin market-filter-input"
+                                        placeholder={counterpart.translate(
+                                            "exchange.filter"
+                                        )}
+                                        maxLength="16"
+                                        name="focus"
+                                        required="required"
+                                        value={this.state.myMarketFilter}
+                                        onChange={this.handleSearchUpdate}
+                                        addonAfter={<Icon type="search" />}
+                                    />
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -1073,9 +1090,7 @@ class MyMarkets extends React.Component {
                         <li
                             key="quote_edit"
                             style={{textTransform: "uppercase"}}
-                            onClick={() => {
-                                ZfApi.publish("quote_selection", "open");
-                            }}
+                            onClick={this.showQuoteModal}
                             className="mymarkets-tab"
                         >
                             &nbsp;+&nbsp;
@@ -1188,7 +1203,12 @@ class MyMarkets extends React.Component {
                         />
                     ) : null}
                 </div>
-                <QuoteSelectionModal quotes={this.props.preferredBases} />
+                <QuoteSelectionModal
+                    visible={this.state.isQuoteModalVisible}
+                    hideModal={this.hideQuoteModal}
+                    showModal={this.showQuoteModal}
+                    quotes={this.props.preferredBases}
+                />
             </div>
         );
     }

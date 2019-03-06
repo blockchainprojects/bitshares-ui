@@ -40,6 +40,12 @@ class BlockchainActions {
                         // console.log("time to fetch block #" + height,":", new Date() - start, "ms");
 
                         dispatch({block: result, maxBlock: maxBlock});
+                    })
+                    .catch(error => {
+                        console.log(
+                            "Error in BlockchainActions.getLatest: ",
+                            error
+                        );
                     });
             }
         };
@@ -57,6 +63,9 @@ class BlockchainActions {
                     result.id = height; // The returned object for some reason does not include the block height..
 
                     dispatch(result);
+                })
+                .catch(error => {
+                    console.log("Error in BlockchainActions.getBlock: ", error);
                 });
         };
     }

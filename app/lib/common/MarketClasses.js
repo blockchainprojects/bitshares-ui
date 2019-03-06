@@ -1,5 +1,5 @@
-import {Fraction} from "fractional";
 import utils from "./utils";
+import {BigNumber} from "bignumber.js";
 
 const GRAPHENE_100_PERCENT = 10000;
 
@@ -235,10 +235,11 @@ class Price {
             * larger than 100k do not need more than 5 decimals. Without this we
             * quickly encounter JavaScript floating point errors for large numbers.
             */
+
             if (real > 100000) {
                 real = limitByPrecision(real, 5);
             }
-            let frac = new Fraction(real);
+            let frac = new BigNumber(real.toString()).toFraction();
             let baseSats = base.toSats(),
                 quoteSats = quote.toSats();
             let numRatio = baseSats / quoteSats,
@@ -250,8 +251,8 @@ class Price {
                 numRatio = 1;
             }
 
-            base.setAmount({sats: frac.numerator * numRatio});
-            quote.setAmount({sats: frac.denominator * denRatio});
+            base.setAmount({sats: frac[0] * numRatio});
+            quote.setAmount({sats: frac[1] * denRatio});
         } else if (real === 0) {
             base.setAmount({sats: 0});
             quote.setAmount({sats: 0});
@@ -1304,6 +1305,73 @@ class FillOrder {
     }
 }
 
+class CollateralBid {
+    constructor(order, assets, market_base, feed) {
+        if (!order || !assets) {
+            throw new Error("Collateral Bid missing inputs");
+        }
+
+        this.market_base = market_base;
+        this.inverted = market_base === order.inv_swan_price.base.asset_id;
+
+        this.id = order.id;
+        this.bidder = order.bidder;
+        this.collateral = parseInt(order.inv_swan_price.base.amount, 10);
+        this.debt = parseInt(order.inv_swan_price.quote.amount, 10);
+
+        this.bid = new Price({
+            base: new Asset({
+                asset_id: order.inv_swan_price.base.asset_id,
+                amount: parseInt(order.inv_swan_price.base.amount, 10),
+                precision: assets[order.inv_swan_price.base.asset_id].precision
+            }),
+            quote: new Asset({
+                asset_id: order.inv_swan_price.quote.asset_id,
+                amount: parseInt(order.inv_swan_price.quote.amount, 10),
+                precision: assets[order.inv_swan_price.quote.asset_id].precision
+            })
+        });
+
+        this.precisionsRatio =
+            precisionToRatio(
+                assets[order.inv_swan_price.base.asset_id].precision
+            ) /
+            precisionToRatio(
+                assets[order.inv_swan_price.quote.asset_id].precision
+            );
+
+        if (this.inverted) this.bid = this.bid.invert();
+        this.feed_price = feed;
+    }
+
+    getFeedPrice(f = this.feed_price) {
+        if (this._feed_price) {
+            return this._feed_price;
+        }
+        return (this._feed_price = f.toReal(
+            f.base.asset_id === this.market_base
+        ));
+    }
+
+    /* Returns satoshi feed price in consistent units of debt/collateral */
+    _getFeedPrice() {
+        return (
+            (this.inverted
+                ? this.getFeedPrice()
+                : this.feed_price.invert().toReal()) * this.precisionsRatio
+        );
+    }
+
+    getRatio() {
+        return (
+            this.collateral / // CORE
+            (this.debt / // DEBT
+                this._getFeedPrice()) / // DEBT/CORE
+            100
+        );
+    }
+}
+
 export {
     Asset,
     Price,
@@ -1313,6 +1381,7 @@ export {
     precisionToRatio,
     LimitOrder,
     CallOrder,
+    CollateralBid,
     SettleOrder,
     didOrdersChange,
     GroupedOrder,

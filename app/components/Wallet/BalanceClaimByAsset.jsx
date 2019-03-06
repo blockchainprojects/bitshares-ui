@@ -6,6 +6,7 @@ import BalanceClaimActiveStore from "stores/BalanceClaimActiveStore";
 import BalanceClaimActiveActions from "actions/BalanceClaimActiveActions";
 import FormattedAsset from "components/Utility/FormattedAsset";
 import Translate from "react-translate-component";
+import {Card} from "bitshares-ui-style-guide";
 
 class BalanceClaimByAsset extends Component {
     constructor() {
@@ -72,11 +73,7 @@ class BalanceClaimByAsset extends Component {
                 </span>
             );
         }
-        return (
-            <div className="card">
-                <div className="card-content">{content}</div>
-            </div>
-        );
+        return <Card>{content}</Card>;
     }
 }
 

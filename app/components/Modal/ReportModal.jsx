@@ -1,217 +1,302 @@
 import React from "react";
-import ZfApi from "react-foundation-apps/src/utils/foundation-api";
 import Translate from "react-translate-component";
-import BaseModal from "./BaseModal";
-import {ChainStore} from "bitsharesjs";
-import AccountStore from "stores/AccountStore";
-import {Asset} from "common/MarketClasses";
-import {debounce, isNaN} from "lodash-es";
-import {
-    checkFeeStatusAsync,
-    checkBalance,
-    shouldPayFeeWithAssetAsync
-} from "common/trxHelper";
 import LoadingIndicator from "../LoadingIndicator";
 import LogsActions from "actions/LogsActions";
-import Screenshot from "lib/common/Screenshot";
-
-import {connect} from "alt-react";
+import CopyButton from "../Utility/CopyButton";
+import html2canvas from "html2canvas";
+import {Modal, Button, Tooltip} from "bitshares-ui-style-guide";
+import counterpart from "counterpart";
+import Icon from "../Icon/Icon";
 
 class ReportModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = this.getInitialState(props);
-        this.nestedRef = null;
-
-        ZfApi.subscribe("transaction_confirm_actions", (name, msg) => {
-            if (msg == "close") {
-                this.setState({hidden: false});
-            }
-        });
+        this.showLog = this.showLog.bind(this);
     }
 
     getInitialState() {
         return {
-            open: false,
             loadingImage: false,
-            memo: "",
-            hidden: false,
-            logsCopySuccess: false
+            logEntries: [],
+            logsCopySuccess: false,
+            showLog: false,
+            imageURI: null,
+            showScreen: false
         };
     }
 
-    show() {
-        this.getLogs();
-        this.setState({open: true, hidden: false}, () => {
-            ZfApi.publish(this.props.id, "open");
-        });
+    shouldComponentUpdate(nextProps, nextState) {
+        let should =
+            this.props.visible !== nextProps.visible ||
+            this.state.imageURI !== nextState.imageURI ||
+            this.state.showLog !== nextState.showLog ||
+            this.state.showScreen !== nextState.showScreen;
+        if (nextProps.visible && this.props.visible !== nextProps.visible) {
+            this.getLogs();
+            html2canvas(document.getElementById("content"))
+                .then(canvas => {
+                    return canvas.toDataURL("image/png");
+                })
+                .then(
+                    uri => this.setState({imageURI: uri}),
+                    error => {
+                        console.error(
+                            "Screenshot could not be captured",
+                            error
+                        );
+                        this.setState({
+                            imageURI: "Screenshot could not be captured"
+                        });
+                    }
+                );
+        }
+        return should;
     }
 
-    onMemoChanged(e) {
-        this.setState({memo: e.target.value});
+    onLogEntryChanged(e) {
+        this.setState({logEntries: [e.target.value]});
     }
 
-    onClose = (publishClose = true) => {
-        ZfApi.unsubscribe("transaction_confirm_actions");
-        this.setState(
-            {
-                open: false,
-                loadingImage: false,
-                memo: "",
-                hidden: false,
-                logsCopySuccess: false
-            },
-            () => {
-                if (publishClose) ZfApi.publish(this.props.id, "close");
-            }
-        );
-    };
-
-    downloadScreenshot = () => {
-        this.setState({
-            loadingImage: true
-        });
-
+    showScreenshot = () => {
         // Take screenshot
-        Screenshot(() => {
-            this.setState({
-                loadingImage: false
-            });
+        this.setState({
+            showScreen: !this.state.showScreen
         });
     };
 
     getLogs = () => {
         LogsActions.getLogs().then(data => {
-            LogsActions.convertToText(data).then(text => {
-                this.setState({
-                    memo: text
-                });
+            if (__DEV__) {
+                data.unshift(
+                    "Running in DEV mode, persistant capturing of logs deactivated!"
+                );
+            }
+            this.setState({
+                logEntries: data.join("\n")
             });
         });
     };
 
-    copyLogs = () => {
-        const copyText = document.getElementById("logsText");
-        copyText.select();
-        document.execCommand("copy");
-
+    showLog() {
         this.setState({
-            logsCopySuccess: true
+            showLog: !this.state.showLog
         });
-    };
+    }
 
     render() {
-        let {open, hidden, memo, loadingImage, logsCopySuccess} = this.state;
+        let {
+            logEntries,
+            loadingImage,
+            logsCopySuccess,
+            showLog,
+            showScreen
+        } = this.state;
 
-        return !open ? null : (
-            <div id="report_modal" className={hidden || !open ? "hide" : ""}>
-                <BaseModal
-                    id={this.props.id}
-                    overlay={true}
-                    onClose={() => this.onClose(this, false)}
-                >
-                    <div className="grid-block vertical no-overflow">
-                        {/*  M E M O  */}
-                        <div className="content-block transfer-input">
-                            {memo && memo.length ? (
-                                <label className="right-label">
-                                    {memo.length}
+        const decriptionArea = () => {
+            if (true) {
+                // !showLog && !showScreen
+                return (
+                    <p>
+                        <Translate content="modal.report.explanatory_text_2" />
+                        <br />
+                        &nbsp;&nbsp;
+                        <a
+                            href="https://github.com/bitshares/bitshares-ui/issues"
+                            target="_blank"
+                            style={{textAlign: "center", width: "100%"}}
+                        >
+                            https://github.com/bitshares/bitshares-ui/issues
+                        </a>
+                        <br />
+                        <Translate content="modal.report.explanatory_text_3" />
+                        <br />
+                        <br />
+                        <Translate content="modal.report.explanatory_text_4" />
+                        <br />
+                        &nbsp;&nbsp;
+                        <a
+                            href="https://hackthedex.io"
+                            target="_blank"
+                            style={{textAlign: "center", width: "100%"}}
+                        >
+                            https://hackthedex.io
+                        </a>
+                    </p>
+                );
+            }
+        };
+
+        const logsArea = () => {
+            if (showLog) {
+                return (
+                    <textarea
+                        id="logsText"
+                        style={{}}
+                        rows="20"
+                        value={logEntries}
+                        onChange={this.onLogEntryChanged.bind(this)}
+                    />
+                );
+            }
+        };
+
+        const screenshotArea = () => {
+            if (this.state.imageURI != null) {
+                if (showScreen) {
+                    if (this.state.imageURI.length > 100) {
+                        return <img src={this.state.imageURI} />;
+                    } else {
+                        return <text>this.state.imageURI</text>;
+                    }
+                }
+            }
+        };
+
+        return (
+            <Modal
+                title={counterpart.translate("modal.report.title")}
+                visible={this.props.visible}
+                onCancel={this.props.hideModal}
+                footer={[
+                    <Button key={"submit"} onClick={this.props.hideModal}>
+                        {counterpart.translate("modal.ok")}
+                    </Button>
+                ]}
+            >
+                <div className="grid-block vertical no-overflow">
+                    <p>
+                        <Translate content="modal.report.explanatory_text_1" />
+                    </p>
+                    <span
+                        className="raw"
+                        style={{
+                            border: "1px solid darkgray",
+                            marginBottom: "1em"
+                        }}
+                    >
+                        <div
+                            className="right-label"
+                            style={{paddingBottom: "0em"}}
+                        >
+                            <CopyButton text={this.state.logEntries} />
+                        </div>
+
+                        <Tooltip
+                            title={
+                                this.state.showLog
+                                    ? counterpart.translate(
+                                          "modal.report.hideLog"
+                                      )
+                                    : counterpart.translate(
+                                          "modal.report.showLog"
+                                      )
+                            }
+                        >
+                            <div
+                                onClick={this.showLog}
+                                style={{cursor: "pointer"}}
+                            >
+                                <label
+                                    className="left-label"
+                                    style={{
+                                        paddingTop: "1em",
+                                        paddingLeft: "0.5em",
+                                        cursor: "pointer"
+                                    }}
+                                >
+                                    {this.state.showLog ? "-" : "+"}
+                                    &nbsp;
+                                    <Translate content="modal.report.lastLogEntries" />
                                 </label>
-                            ) : null}
-                            <Translate
-                                className="left-label tooltip"
-                                component="label"
-                                content="transfer.memo"
-                            />
-                            <textarea
-                                id="logsText"
-                                style={{marginBottom: 0}}
-                                rows="3"
-                                value={memo}
-                                onChange={this.onMemoChanged.bind(this)}
-                            />
-                            {/* warning */}
-                            {this.state.propose ? (
-                                <div
-                                    className="error-area"
-                                    style={{position: "absolute"}}
-                                >
-                                    <Translate
-                                        content="transfer.warn_name_unable_read_memo"
-                                        name={this.state.from_name}
-                                    />
-                                </div>
-                            ) : null}
-                        </div>
-                        <div className="content-block transfer-input">
-                            <div className="no-margin no-padding">
-                                <div
-                                    className="small-6"
+                            </div>
+                        </Tooltip>
+
+                        {logsArea()}
+                    </span>
+                    <span
+                        className="raw"
+                        style={{
+                            border: "1px solid darkgray",
+                            marginBottom: "1em"
+                        }}
+                    >
+                        <div
+                            className="right-label"
+                            style={{paddingBottom: "0em"}}
+                        >
+                            {this.state.imageURI != null ? (
+                                <img
                                     style={{
-                                        display: "inline-block",
-                                        paddingRight: "10px"
+                                        height: "2.8em",
+                                        marginTop: "0em",
+                                        marginRight: "0em"
+                                    }}
+                                    src={this.state.imageURI}
+                                />
+                            ) : (
+                                "Failed"
+                            )}
+                        </div>
+                        <div
+                            className="right-label"
+                            style={{
+                                paddingBottom: "0em",
+                                paddingTop: "1em",
+                                paddingRight: "0.5em"
+                            }}
+                        >
+                            <Translate content="modal.report.copyScreenshot" />
+                        </div>
+
+                        <Tooltip
+                            title={
+                                this.state.showScreen
+                                    ? counterpart.translate(
+                                          "modal.report.hideScreenshot"
+                                      )
+                                    : counterpart.translate(
+                                          "modal.report.takeScreenshot"
+                                      )
+                            }
+                        >
+                            <div
+                                onClick={this.showScreenshot}
+                                style={{cursor: "pointer"}}
+                            >
+                                <label
+                                    className="left-label"
+                                    style={{
+                                        paddingTop: "1em",
+                                        paddingLeft: "0.5em",
+                                        cursor: "pointer"
                                     }}
                                 >
-                                    <div
-                                        className="button primary"
-                                        onClick={this.downloadScreenshot}
-                                    >
-                                        <Translate content="modal.report.takeScreenshot" />
-                                    </div>
-                                </div>
-                                <div
-                                    className="small-6"
-                                    style={{
-                                        display: "inline-block",
-                                        paddingRight: "10px"
-                                    }}
-                                >
-                                    <div
-                                        className="button primary"
-                                        onClick={this.copyLogs}
-                                    >
-                                        <Translate content="modal.report.copyErrors" />
-                                    </div>
-                                </div>
+                                    {this.state.showScreen ? "-" : "+"}
+                                    &nbsp;
+                                    <Translate content="modal.report.screenshot" />
+                                </label>
                             </div>
+                        </Tooltip>
+
+                        {screenshotArea()}
+                    </span>
+                    <br />
+                    {decriptionArea()}
+                    {loadingImage && (
+                        <div style={{textAlign: "center"}}>
+                            <LoadingIndicator type="three-bounce" />
                         </div>
-                        {loadingImage && (
-                            <div style={{textAlign: "center"}}>
-                                <LoadingIndicator type="three-bounce" />
-                            </div>
-                        )}
-                        {logsCopySuccess && (
-                            <p>
-                                <Translate content="modal.report.copySuccess" />
-                            </p>
-                        )}
-                    </div>
-                </BaseModal>
-            </div>
+                    )}
+                    {logsCopySuccess && (
+                        <p>
+                            <Translate content="modal.report.copySuccess" />
+                        </p>
+                    )}
+                </div>
+            </Modal>
         );
     }
 }
 
-class ReportModalConnectWrapper extends React.Component {
-    render() {
-        return <ReportModal {...this.props} ref={this.props.refCallback} />;
-    }
-}
-
-ReportModalConnectWrapper = connect(
-    ReportModalConnectWrapper,
-    {
-        listenTo() {
-            return [AccountStore];
-        },
-        getProps(props) {
-            return {
-                currentAccount: AccountStore.getState().currentAccount,
-                passwordAccount: AccountStore.getState().passwordAccount,
-                tabIndex: props.tabIndex || 0
-            };
-        }
-    }
-);
-
-export default ReportModalConnectWrapper;
+export default ReportModal;

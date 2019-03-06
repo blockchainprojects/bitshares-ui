@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {connect} from "alt-react";
 import Immutable from "immutable";
 import cname from "classnames";
-import notify from "actions/NotificationActions";
+import counterpart from "counterpart";
 
 import LoadingIndicator from "components/LoadingIndicator";
 import PrivateKeyStore from "stores/PrivateKeyStore";
@@ -13,6 +13,7 @@ import BalanceClaimSelector from "components/Wallet/BalanceClaimSelector";
 import WalletActions from "actions/WalletActions";
 import MyAccounts from "components/Forms/MyAccounts";
 import Translate from "react-translate-component";
+import {Notification} from "bitshares-ui-style-guide";
 
 class BalanceClaimActive extends Component {
     componentWillMount() {
@@ -137,7 +138,15 @@ class BalanceClaimActive extends Component {
             try {
                 message = error.data.message;
             } catch (e) {}
-            notify.error("Error claiming balance: " + message);
+            Notification.error({
+                message: counterpart.translate(
+                    "notifications.balance_claim_error",
+                    {
+                        error_msg: message
+                    }
+                )
+            });
+
             throw error;
         });
     }
