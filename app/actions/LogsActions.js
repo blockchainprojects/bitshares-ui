@@ -13,25 +13,6 @@ class LogsActions {
             resolve(JSON.parse(ss.get("logs", [])));
         });
     }
-
-    convertToText(array) {
-        return new Promise(resolve => {
-            let textData = [];
-            array.map(item => {
-                let logData = [];
-                item.log.map(log =>
-                    logData.push(
-                        typeof log == "string" ? log : JSON.stringify(log)
-                    )
-                );
-                logData = logData.join(" ~ ");
-                textData.push(`${item.type}: ${logData}`);
-            });
-
-            textData = textData.join("\n");
-            resolve(textData);
-        });
-    }
 }
 
 export default alt.createActions(LogsActions);

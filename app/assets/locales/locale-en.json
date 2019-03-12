@@ -1356,7 +1356,7 @@
             "button": "Report",
             "copyLog": "Copy Log",
             "copyScreenshot": "Right click in Image Preview -> Copy",
-            "copySuccess": "Copy ended",
+            "copySuccess": "Logs are successfully copied",
             "explanatory_text_1": "This report collects the last entries in the console log and takes a screenshot of the current view before the modal is opened. Click on either entry to see the details.",
             "explanatory_text_2": "Please report the issue you have found to GitHub:",
             "explanatory_text_3": "You can copy and paste (CTRL+V) the screenshot as well as the log entries directly into the issue content text area, pasting the screenshot also works in telegram chat.",

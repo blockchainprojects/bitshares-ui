@@ -11,41 +11,81 @@ const dark = require("assets/logo-404-dark.png");
 const midnight = require("assets/logo-404-midnight.png");
 
 class Page500 extends React.Component {
+    state = {
+        showLogs: false,
+        memo: "",
+        errorModule: false
+    };
+
     static defaultProps = {
         subtitle: "page_not_found_subtitle"
     };
 
-    constructor(props) {
-        super(props);
-        this.state = this.getInitialState(props);
+    componentDidUpdate(prevProps, prevState) {
+        if (
+            this.props.isErrorCaught !== prevState.errorModule &&
+            !this.state.memo
+        ) {
+            this.getLogs();
+        }
     }
 
-    componentWillMount() {
-        this.getLogs();
-    }
-    componentDidCatch(error) {
-        this.setState({errorModule: true});
-    }
-    onError() {
-        this.setState({errorModule: false});
-    }
+    clearErrors = () => {
+        this.setState({errorModule: false, memo: ""});
+    };
+
+    getLogs = () => {
+        LogsActions.getLogs().then(data => {
+            this.setState({
+                memo: data.join("\n"),
+                errorModule: true
+            });
+        });
+    };
+
+    toggleLogs = () => {
+        const {showLogs} = this.state;
+
+        this.setState(
+            {
+                showLogs: !showLogs
+            },
+            () => {
+                if (!showLogs) {
+                    setTimeout(() => {
+                        this.copyLogs();
+                    }, 1000);
+                }
+            }
+        );
+    };
+
+    copyLogs = () => {
+        const copyText = document.getElementById("logsText");
+        copyText.select();
+        document.execCommand("copy");
+    };
 
     render() {
         const {state} = this;
+        const {theme} = this.props;
 
         let logo;
 
-        if (this.props.theme === "lightTheme") {
-            logo = light;
+        switch (theme) {
+            case "darkTheme":
+                logo = dark;
+                break;
+            case "lightTheme":
+                logo = light;
+                break;
+            case "midnightTheme":
+                logo = midnight;
+                break;
+            default:
+                logo = dark;
         }
 
-        if (this.props.theme === "darkTheme") {
-            logo = dark;
-        }
-
-        if (this.props.theme === "midnightTheme") {
-            logo = midnight;
-        }
         const content = () => {
             return (
                 <div
@@ -72,7 +112,10 @@ class Page500 extends React.Component {
                                         />
                                     </div>
                                     <div className="page-404-button-back">
-                                        <Link to={"/"} onClick={this.onError}>
+                                        <Link
+                                            to={"/"}
+                                            onClick={this.clearErrors}
+                                        >
                                             <Translate
                                                 component="button"
                                                 className="button"
@@ -95,7 +138,7 @@ class Page500 extends React.Component {
                                             >
                                                 <div
                                                     className="button primary"
-                                                    onClick={this.hundleLogs}
+                                                    onClick={this.toggleLogs}
                                                 >
                                                     <Translate
                                                         content={
@@ -121,7 +164,8 @@ class Page500 extends React.Component {
                                                 style={{marginBottom: 0}}
                                                 rows="10"
                                                 value={state.memo}
-                                                onChange={this.onMemoChanged}
+                                                // onChange={this.onMemoChanged}
+                                                readOnly
                                             />
                                             <p>
                                                 <Translate content="modal.report.copySuccess" />
@@ -135,61 +179,17 @@ class Page500 extends React.Component {
                 </div>
             );
         };
-
         return this.state.errorModule ? (
             <div>
-                <Redirect to="/error" />
+                {window.location.pathname !== "/error" && (
+                    <Redirect to="/error" />
+                )}
                 <Route exact path="/error" component={content} />
             </div>
         ) : (
             this.props.children
         );
     }
-
-    getInitialState = () => {
-        return {
-            showLogs: false,
-            memo: "",
-            errorModule: false
-        };
-    };
-
-    onMemoChanged = e => {
-        this.setState({memo: e.target.value});
-    };
-
-    getLogs = () => {
-        LogsActions.getLogs().then(data => {
-            LogsActions.convertToText(data).then(text => {
-                this.setState({
-                    memo: text
-                });
-            });
-        });
-    };
-
-    hundleLogs = () => {
-        const {state} = this;
-
-        this.setState(
-            {
-                showLogs: !state.showLogs
-            },
-            () => {
-                if (!state.showLogs) {
-                    setTimeout(() => {
-                        this.copyLogs();
-                    }, 1000);
-                }
-            }
-        );
-    };
-
-    copyLogs = () => {
-        const copyText = document.getElementById("logsText");
-        copyText.select();
-        document.execCommand("copy");
-    };
 }
 
 export default (Page500 = connect(

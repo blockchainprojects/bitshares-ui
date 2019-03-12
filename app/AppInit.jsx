@@ -53,7 +53,8 @@ class AppInit extends React.Component {
             apiError: false,
             syncError: null,
             status: "",
-            extendeLogText: [] // used to cache logs when not mounted
+            extendeLogText: [], // used to cache logs when not mounted
+            isErrorCaught: false
         };
         this.mounted = true;
         this.persistentLogEnabled = false;
@@ -64,7 +65,12 @@ class AppInit extends React.Component {
      * @param error
      */
     componentDidCatch(error) {
-        this.saveExtendedLog("error", [error]);
+        if (!__DEV__) {
+            this.saveExtendedLog("error", [error]);
+            if (error) {
+                this.setState({isErrorCaught: true});
+            }
+        }
     }
 
     componentDidUpdate(nextProps, nextState) {
@@ -204,7 +210,13 @@ class AppInit extends React.Component {
 
     render() {
         const {theme, apiServer} = this.props;
-        const {apiConnected, apiError, syncError, status} = this.state;
+        const {
+            apiConnected,
+            apiError,
+            syncError,
+            status,
+            isErrorCatched
+        } = this.state;
 
         if (!apiConnected) {
             let server = apiServer;

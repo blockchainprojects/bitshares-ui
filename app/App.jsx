@@ -358,7 +358,14 @@ class App extends React.Component {
 
     render() {
         let {incognito, incognitoWarningDismissed} = this.state;
-        let {walletMode, theme, location, match, ...others} = this.props;
+        let {
+            walletMode,
+            theme,
+            location,
+            match,
+            isErrorCaught,
+            ...others
+        } = this.props;
         let content = null;
 
         if (this.state.syncFail) {
@@ -532,7 +539,7 @@ class App extends React.Component {
         }
 
         return (
-            <Page500 theme={theme}>
+            <Page500 theme={theme} isErrorCaught={isErrorCaught}>
                 <div
                     style={{backgroundColor: !theme ? "#2a2a2a" : null}}
                     className={theme}
