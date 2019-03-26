@@ -73,6 +73,10 @@ class AppInit extends React.Component {
         }
     }
 
+    clearCaughtError = () => {
+        this.setState({isErrorCaught: false});
+    };
+
     componentDidUpdate(nextProps, nextState) {
         LogsActions.setLog(nextState.extendeLogText);
     }
@@ -252,7 +256,13 @@ class AppInit extends React.Component {
                 </div>
             );
         }
-        return <RootIntl {...this.props} {...this.state} />;
+        return (
+            <RootIntl
+                {...this.props}
+                clearCaughtError={this.clearCaughtError}
+                {...this.state}
+            />
+        );
     }
 }
 

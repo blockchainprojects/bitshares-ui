@@ -13,7 +13,7 @@ const midnight = require("assets/logo-404-midnight.png");
 class Page500 extends React.Component {
     state = {
         showLogs: false,
-        memo: "",
+        logs: "",
         errorModule: false
     };
 
@@ -24,20 +24,23 @@ class Page500 extends React.Component {
     componentDidUpdate(prevProps, prevState) {
         if (
             this.props.isErrorCaught !== prevState.errorModule &&
-            !this.state.memo
+            !this.state.logs
         ) {
             this.getLogs();
         }
     }
 
     clearErrors = () => {
-        this.setState({errorModule: false, memo: ""});
+        this.setState(
+            {errorModule: false, logs: ""},
+            this.props.clearCaughtError
+        );
     };
 
     getLogs = () => {
         LogsActions.getLogs().then(data => {
             this.setState({
-                memo: data.join("\n"),
+                logs: data.join("\n"),
                 errorModule: true
             });
         });
@@ -67,8 +70,8 @@ class Page500 extends React.Component {
     };
 
     render() {
-        const {state} = this;
-        const {theme} = this.props;
+        const {showLogs, logs, errorModule} = this.state;
+        const {theme, children} = this.props;
 
         let logo;
 
@@ -90,9 +93,9 @@ class Page500 extends React.Component {
             return (
                 <div
                     style={{
-                        backgroundColor: !this.props.theme ? "#2a2a2a" : null
+                        backgroundColor: !theme ? "#2a2a2a" : null
                     }}
-                    className={this.props.theme}
+                    className={theme}
                 >
                     <div id="content-wrapper">
                         <div className="grid-frame vertical">
@@ -142,7 +145,7 @@ class Page500 extends React.Component {
                                                 >
                                                     <Translate
                                                         content={
-                                                            state.showLogs
+                                                            showLogs
                                                                 ? "page500.hideLogs"
                                                                 : "page500.showLogs"
                                                         }
@@ -152,7 +155,7 @@ class Page500 extends React.Component {
                                         </div>
                                     </div>
 
-                                    {state.showLogs && (
+                                    {showLogs && (
                                         <div
                                             className="content-block transfer-input"
                                             style={{
@@ -163,8 +166,7 @@ class Page500 extends React.Component {
                                                 id="logsText"
                                                 style={{marginBottom: 0}}
                                                 rows="10"
-                                                value={state.memo}
-                                                // onChange={this.onMemoChanged}
+                                                value={logs}
                                                 readOnly
                                             />
                                             <p>
@@ -179,7 +181,7 @@ class Page500 extends React.Component {
                 </div>
             );
         };
-        return this.state.errorModule ? (
+        return errorModule ? (
             <div>
                 {window.location.pathname !== "/error" && (
                     <Redirect to="/error" />
@@ -187,7 +189,7 @@ class Page500 extends React.Component {
                 <Route exact path="/error" component={content} />
             </div>
         ) : (
-            this.props.children
+            children
         );
     }
 }

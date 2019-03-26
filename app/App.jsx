@@ -144,15 +144,13 @@ class App extends React.Component {
             syncFail,
             incognito: false,
             incognitoWarningDismissed: false,
-            height: window && window.innerHeight,
-            errorModule: false
+            height: window && window.innerHeight
         };
 
         this._rebuildTooltips = this._rebuildTooltips.bind(this);
         this._chainStoreSub = this._chainStoreSub.bind(this);
         this._syncStatus = this._syncStatus.bind(this);
         this._getWindowHeight = this._getWindowHeight.bind(this);
-        this.onErrorModule = this.onErrorModule.bind(this);
 
         this.showBrowserSupportModal = this.showBrowserSupportModal.bind(this);
         this.hideBrowserSupportModal = this.hideBrowserSupportModal.bind(this);
@@ -268,24 +266,10 @@ class App extends React.Component {
         );
         updateGatewayBackers();
     }
-    static getDerivedStateFromProps(nextProps, prevState) {
-        if (
-            nextProps.location.pathname !== "/error" &&
-            nextProps.errorModule !== prevState.errorModule
-        ) {
-            return {
-                errorModule: nextProps.errorModule
-            };
-        }
-        return null;
-    }
 
     componentDidUpdate(prevProps) {
         if (this.props.location !== prevProps.location) {
             this.onRouteChanged();
-        }
-        if (this.state.errorModule) {
-            this.onErrorModule();
         }
     }
 
@@ -352,10 +336,6 @@ class App extends React.Component {
     //     this.refs.notificationSystem.addNotification(params);
     // }
 
-    onErrorModule() {
-        this.setState({errorModule: false});
-    }
-
     render() {
         let {incognito, incognitoWarningDismissed} = this.state;
         let {
@@ -364,6 +344,7 @@ class App extends React.Component {
             location,
             match,
             isErrorCaught,
+            clearCaughtError,
             ...others
         } = this.props;
         let content = null;
@@ -539,7 +520,11 @@ class App extends React.Component {
         }
 
         return (
-            <Page500 theme={theme} isErrorCaught={isErrorCaught}>
+            <Page500
+                theme={theme}
+                isErrorCaught={isErrorCaught}
+                clearCaughtError={clearCaughtError}
+            >
                 <div
                     style={{backgroundColor: !theme ? "#2a2a2a" : null}}
                     className={theme}
