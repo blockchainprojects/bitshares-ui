@@ -125,6 +125,7 @@ import AccountRegistration from "./components/Registration/AccountRegistration";
 import {CreateWalletFromBrainkey} from "./components/Wallet/WalletCreate";
 import ShowcaseGrid from "./components/Showcases/ShowcaseGrid";
 import PriceAlertNotifications from "./components/PriceAlertNotifications";
+import Invoice from "./components/Transfer/Invoice";
 
 class App extends React.Component {
     constructor() {
@@ -394,6 +395,12 @@ class App extends React.Component {
                                     exact
                                     component={Transfer}
                                 />
+
+                                <Route
+                                    path="/invoice/:data"
+                                    component={Invoice}
+                                />
+
                                 <Route
                                     path="/deposit-withdraw"
                                     exact

@@ -5,7 +5,7 @@ import AccountActions from "actions/AccountActions";
 import AccountSelector from "../Account/AccountSelector";
 import AccountInfo from "../Account/AccountInfo";
 import BalanceComponent from "../Utility/BalanceComponent";
-import {ChainStore, FetchChainObjects} from "bitsharesjs";
+import {ChainStore, FetchChainObjects} from "bitsharesjs/es";
 import NotificationActions from "actions/NotificationActions";
 import TransactionConfirmStore from "stores/TransactionConfirmStore";
 import {decompress} from "lzma";
@@ -40,7 +40,7 @@ class Invoice extends React.Component {
     }
 
     componentDidMount() {
-        let compressed_data = bs58.decode(this.props.params.data);
+        let compressed_data = bs58.decode(this.props.match.params.data);
         try {
             decompress(compressed_data, result => {
                 let invoice = JSON.parse(result);
@@ -159,11 +159,11 @@ class Invoice extends React.Component {
             );
             balance = balances.get(this.state.asset.get("id"));
         }
-        let items = invoice.line_items.map(i => {
+        let items = invoice.line_items.map((i, index) => {
             let price = this.parsePrice(i.price);
             let amount = i.quantity * price;
             return (
-                <tr>
+                <tr key={index}>
                     <td>
                         <div className="item-name">{i.label}</div>
                         <div className="item-description">
@@ -258,6 +258,7 @@ class Invoice extends React.Component {
                                 </div>
                                 <br />
                                 <a
+                                    href="#"
                                     className={payButtonClass}
                                     onClick={this.onPayClick.bind(this)}
                                 >

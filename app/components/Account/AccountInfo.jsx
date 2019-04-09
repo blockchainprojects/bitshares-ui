@@ -31,13 +31,15 @@ class AccountInfo extends React.Component {
 
     render() {
         let {account, image_size} = this.props;
+        const accountName = account ? account.get("name") : null;
 
-        let isLTM =
-            account.get("lifetime_referrer_name") === account.get("name");
+        let isLTM = account
+            ? account.get("lifetime_referrer_name") === accountName
+            : false;
 
         let QR = (
             <div className="account-image">
-                <QRCode size={image_size.width} value={account.get("name")} />
+                <QRCode size={image_size.width} value={accountName || ""} />
             </div>
         );
 
@@ -72,7 +74,7 @@ class AccountInfo extends React.Component {
                     ) : (
                         <AccountImage
                             size={image_size}
-                            account={account.get("name")}
+                            account={accountName}
                             custom_image={null}
                         />
                     )}
@@ -82,7 +84,7 @@ class AccountInfo extends React.Component {
                 </p>
                 <p className={this.props.titleClass}>
                     <span className={isLTM ? "lifetime" : ""}>
-                        {account.get("name")}
+                        {accountName}
                     </span>
                 </p>
                 {/* <div className="secondary">
