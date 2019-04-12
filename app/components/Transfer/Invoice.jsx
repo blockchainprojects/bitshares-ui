@@ -11,6 +11,7 @@ import TransactionConfirmStore from "stores/TransactionConfirmStore";
 import {decompress} from "lzma";
 import bs58 from "common/base58";
 import utils from "common/utils";
+import PrintReceiptButton from "./PrintReceiptButton.jsx";
 
 // invoice example:
 //{
@@ -40,10 +41,22 @@ class Invoice extends React.Component {
     }
 
     componentDidMount() {
+        let tinvoice = {
+            to: "twat124",
+            to_label: "Merchant Name",
+            currency: "TEST",
+            memo: "Invoice #1234",
+            line_items: [
+                {label: "Something to Buy", quantity: 1, price: "1.00"},
+                {label: "10 things to Buy", quantity: 10, price: "1.00"}
+            ],
+            note: "Something the merchant wants to say to the user",
+            callback: "https://bitshares.eu/complete"
+        };
         let compressed_data = bs58.decode(this.props.match.params.data);
         try {
             decompress(compressed_data, result => {
-                let invoice = JSON.parse(result);
+                let invoice = tinvoice; //JSON.parse(result);
                 FetchChainObjects(ChainStore.getAsset, [invoice.currency]).then(
                     assets_array => {
                         this.setState({invoice, asset: assets_array[0]});
@@ -85,6 +98,7 @@ class Invoice extends React.Component {
                     trx.ref_block_num
                 }&trx=${trx.id()}`;
                 window.location.href = url;
+                this.setState({});
             }
         }
     }
@@ -108,8 +122,9 @@ class Invoice extends React.Component {
             asset.get("id"),
             this.state.invoice.memo
         )
-            .then(() => {
+            .then(resp => {
                 TransactionConfirmStore.listen(this.onBroadcastAndConfirm);
+                this.setState({to_account: to_account});
             })
             .catch(e => {
                 console.log("error: ", e);
@@ -151,6 +166,13 @@ class Invoice extends React.Component {
         let total_amount = this.getTotal(invoice.line_items);
         let asset = this.state.invoice.currency;
         let balance = null;
+        const receiptData = {
+            ...invoice,
+            total_amount,
+            asset,
+            from: this.state.pay_from_name || "test"
+        };
+
         if (this.state.pay_from_account) {
             let balances = this.state.pay_from_account.get("balances");
             console.log(
@@ -190,10 +212,15 @@ class Invoice extends React.Component {
         let payButtonClass = classNames("button", {
             disabled: !this.state.pay_from_account
         });
+
         return (
             <div className="grid-block vertical">
                 <div className="grid-content">
                     <div className="content-block invoice">
+                        <PrintReceiptButton
+                            data={receiptData}
+                            parsePrice={this.parsePrice}
+                        />
                         <br />
                         <h3>Pay Invoice</h3>
                         <h4>{invoice.memo}</h4>
