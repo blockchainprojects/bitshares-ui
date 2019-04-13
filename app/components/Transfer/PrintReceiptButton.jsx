@@ -95,7 +95,7 @@ const printReceipt = ({data, parsePrice}) => {
     });
     pdf.save("bitshares-receipt" + to + ".pdf");
 };
-const PrintReceiptButton = ({data, parsePrice}) => {
+const PrintReceiptButton = ({data, parsePrice, disabled}) => {
     const tip = "tooltip.copy_tip",
         dataPlace = "left",
         buttonText = "Print receipt";
@@ -105,7 +105,7 @@ const PrintReceiptButton = ({data, parsePrice}) => {
                 type="primary"
                 icon="download"
                 style={{float: "right", margin: "20px"}}
-                disabled={false}
+                disabled={disabled}
                 onClick={() => printReceipt({data, parsePrice})}
             >
                 {buttonText}

@@ -98,7 +98,6 @@ class Invoice extends React.Component {
                     trx.ref_block_num
                 }&trx=${trx.id()}`;
                 window.location.href = url;
-                this.setState({});
             }
         }
     }
@@ -122,9 +121,9 @@ class Invoice extends React.Component {
             asset.get("id"),
             this.state.invoice.memo
         )
-            .then(resp => {
+            .then(() => {
+                TransactionConfirmStore.unlisten(this.onBroadcastAndConfirm);
                 TransactionConfirmStore.listen(this.onBroadcastAndConfirm);
-                this.setState({to_account: to_account});
             })
             .catch(e => {
                 console.log("error: ", e);
@@ -132,7 +131,7 @@ class Invoice extends React.Component {
     }
 
     fromChanged(pay_from_name) {
-        this.setState({pay_from_name});
+        this.setState({pay_from_name, pay_from_account: null});
     }
 
     onFromAccountChanged(pay_from_account) {
@@ -170,7 +169,7 @@ class Invoice extends React.Component {
             ...invoice,
             total_amount,
             asset,
-            from: this.state.pay_from_name || "test"
+            from: this.state.pay_from_name
         };
 
         if (this.state.pay_from_account) {
@@ -220,6 +219,7 @@ class Invoice extends React.Component {
                         <PrintReceiptButton
                             data={receiptData}
                             parsePrice={this.parsePrice}
+                            disabled={!this.state.pay_from_account}
                         />
                         <br />
                         <h3>Pay Invoice</h3>
