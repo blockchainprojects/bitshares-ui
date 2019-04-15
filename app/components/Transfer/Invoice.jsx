@@ -42,18 +42,6 @@ class Invoice extends React.Component {
     }
 
     componentDidMount() {
-        let tinvoice = {
-            to: "twat124",
-            to_label: "Merchant Name",
-            currency: "TEST",
-            memo: "Invoice #1234",
-            line_items: [
-                {label: "Something to Buy", quantity: 1, price: "1.00"},
-                {label: "10 things to Buy", quantity: 10, price: "1.00"}
-            ],
-            note: "Something the merchant wants to say to the user",
-            callback: "https://bitshares.eu/complete"
-        };
         let compressed_data = bs58.decode(this.props.match.params.data);
 
         TransactionConfirmStore.unlisten(this.onBroadcastAndConfirm);
@@ -61,7 +49,7 @@ class Invoice extends React.Component {
 
         try {
             decompress(compressed_data, result => {
-                let invoice = tinvoice; //JSON.parse(result);
+                let invoice = JSON.parse(result);
                 FetchChainObjects(ChainStore.getAsset, [invoice.currency]).then(
                     assets_array => {
                         this.setState({invoice, asset: assets_array[0]});
