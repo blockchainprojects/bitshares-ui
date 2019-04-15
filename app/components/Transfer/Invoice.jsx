@@ -35,7 +35,8 @@ class Invoice extends React.Component {
             invoice: null,
             pay_from_name: null,
             pay_from_account: null,
-            error: null
+            error: null,
+            blockNum: null
         };
         this.onBroadcastAndConfirm = this.onBroadcastAndConfirm.bind(this);
     }
@@ -54,6 +55,10 @@ class Invoice extends React.Component {
             callback: "https://bitshares.eu/complete"
         };
         let compressed_data = bs58.decode(this.props.match.params.data);
+
+        TransactionConfirmStore.unlisten(this.onBroadcastAndConfirm);
+        TransactionConfirmStore.listen(this.onBroadcastAndConfirm);
+
         try {
             decompress(compressed_data, result => {
                 let invoice = tinvoice; //JSON.parse(result);
@@ -92,13 +97,15 @@ class Invoice extends React.Component {
         ) {
             TransactionConfirmStore.unlisten(this.onBroadcastAndConfirm);
             TransactionConfirmStore.reset();
-            if (this.state.invoice.callback) {
+            this.setState({blockNum: confirm_store_state.trx_block_num});
+
+            /*  if (this.state.invoice.callback) {
                 let trx = confirm_store_state.broadcasted_transaction;
                 let url = `${this.state.invoice.callback}?block=${
                     trx.ref_block_num
                 }&trx=${trx.id()}`;
                 window.location.href = url;
-            }
+            }  */
         }
     }
 
@@ -169,7 +176,8 @@ class Invoice extends React.Component {
             ...invoice,
             total_amount,
             asset,
-            from: this.state.pay_from_name
+            from: this.state.pay_from_account,
+            blockNum: this.state.blockNum
         };
 
         if (this.state.pay_from_account) {
@@ -219,7 +227,6 @@ class Invoice extends React.Component {
                         <PrintReceiptButton
                             data={receiptData}
                             parsePrice={this.parsePrice}
-                            disabled={!this.state.pay_from_account}
                         />
                         <br />
                         <h3>Pay Invoice</h3>

@@ -3,9 +3,20 @@ import {Tooltip, Button} from "bitshares-ui-style-guide";
 import counterpart from "counterpart";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import BlockchainStore from "stores/BlockchainStore";
+import BlockchainActions from "actions/BlockchainActions";
 
 const printReceipt = ({data, parsePrice}) => {
-    const {line_items, to, asset, from, total_amount, memo, currency} = data;
+    const {
+        line_items,
+        to,
+        asset,
+        from,
+        total_amount,
+        memo,
+        currency,
+        blockNum
+    } = data;
     const marginUp = 25,
         lineMargin = 5,
         marginLeft = 15,
@@ -17,8 +28,19 @@ const printReceipt = ({data, parsePrice}) => {
 
     let height = 0;
     let body = [];
+    let transactionId = null;
+    from.get("history").forEach(op => {
+        if (op.get("block_num") === blockNum) {
+            transactionId = op.get("id");
+            return;
+        }
+    });
 
-    const date = new Date().toLocaleDateString("en-US").replace(/\//g, ".");
+    const date = BlockchainStore.getState().blockHeaders.get(blockNum);
+
+    const timestamp = date
+        ? date.timestamp.toLocaleDateString("en-US").replace(/\//g, ".")
+        : null;
 
     const pdf = new jsPDF({
         orientation: "portrait",
@@ -28,7 +50,7 @@ const printReceipt = ({data, parsePrice}) => {
     pdf.setFontStyle("bold");
     pdf.setFontSize(fontSize);
     pdf.text("FROM", marginLeft, (height += marginUp));
-    pdf.text(from, marginLeft, (height += rowHeight));
+    pdf.text(from.get("name"), marginLeft, (height += rowHeight));
 
     pdf.autoTable({
         body: [
@@ -36,9 +58,9 @@ const printReceipt = ({data, parsePrice}) => {
             [
                 {content: "BILL TO", styles: {fontStyle: "bold"}},
                 "RECEIPT DATE",
-                date
+                timestamp
             ],
-            [to, "TRANSACTION", memo]
+            [to, "TRANSACTION", transactionId]
         ],
         bodyStyles: {valign: "top"},
         styles: {cellWidth: "wrap", rowPageBreak: "auto", halign: "justify"},
@@ -95,17 +117,19 @@ const printReceipt = ({data, parsePrice}) => {
     });
     pdf.save("bitshares-receipt" + to + ".pdf");
 };
-const PrintReceiptButton = ({data, parsePrice, disabled}) => {
+const PrintReceiptButton = ({data, parsePrice}) => {
     const tip = "tooltip.copy_tip",
         dataPlace = "left",
         buttonText = "Print receipt";
+    if (data.blockNum) BlockchainActions.getHeader.defer(data.blockNum);
+
     return (
         <Tooltip placement={dataPlace} title={counterpart.translate(tip)}>
             <Button
                 type="primary"
                 icon="download"
                 style={{float: "right", margin: "20px"}}
-                disabled={disabled}
+                disabled={!data.from || !data.blockNum}
                 onClick={() => printReceipt({data, parsePrice})}
             >
                 {buttonText}
