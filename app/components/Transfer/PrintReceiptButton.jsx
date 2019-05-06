@@ -115,10 +115,10 @@ const printReceipt = ({data, parsePrice}) => {
         },
         theme: "plain"
     });
-    pdf.save("bitshares-receipt" + to + ".pdf");
+    pdf.save("bitshares-receipt-" + to + ".pdf");
 };
 const PrintReceiptButton = ({data, parsePrice}) => {
-    const tip = "tooltip.copy_tip",
+    const tip = "tooltip.print_receipt",
         dataPlace = "left",
         buttonText = "Print receipt";
     if (data.blockNum) BlockchainActions.getHeader.defer(data.blockNum);
