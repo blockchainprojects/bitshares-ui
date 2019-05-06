@@ -30,6 +30,7 @@ import ReserveAssetModal from "../Modal/ReserveAssetModal";
 import PaginatedList from "../Utility/PaginatedList";
 import MarketUtils from "common/market_utils";
 import {Tooltip, Icon as AntIcon} from "bitshares-ui-style-guide";
+import MarketsActions from "actions/MarketsActions";
 
 class AccountPortfolioList extends React.Component {
     constructor() {
@@ -94,9 +95,9 @@ class AccountPortfolioList extends React.Component {
 
     _checkRefAssignments() {
         /*
-        * In order for sorting to work all refs must be assigned, so we check
-        * this here and update the state to trigger a rerender
-        */
+         * In order for sorting to work all refs must be assigned, so we check
+         * this here and update the state to trigger a rerender
+         */
         if (!this.state.allRefsAssigned) {
             let refKeys = ["qtyRefs", "priceRefs", "valueRefs", "changeRefs"];
             const allRefsAssigned = refKeys.reduce((a, b) => {
@@ -325,8 +326,8 @@ class AccountPortfolioList extends React.Component {
                 [action === "bridge_modal"
                     ? "bridgeAsset"
                     : action === "deposit_modal"
-                        ? "depositAsset"
-                        : "withdrawAsset"]: asset,
+                    ? "depositAsset"
+                    : "withdrawAsset"]: asset,
                 fiatModal
             },
             () => {
@@ -526,7 +527,10 @@ class AccountPortfolioList extends React.Component {
 
             /* Table content */
             directMarketLink = notCore ? (
-                <Link to={`/market/${asset.get("symbol")}_${preferredMarket}`}>
+                <Link
+                    to={`/market/${asset.get("symbol")}_${preferredMarket}`}
+                    onClick={() => MarketsActions.switchMarket()}
+                >
                     <Icon
                         name="trade"
                         title="icons.trade.trade"
@@ -534,7 +538,10 @@ class AccountPortfolioList extends React.Component {
                     />
                 </Link>
             ) : notCorePrefUnit ? (
-                <Link to={`/market/${asset.get("symbol")}_${preferredUnit}`}>
+                <Link
+                    to={`/market/${asset.get("symbol")}_${preferredUnit}`}
+                    onClick={() => MarketsActions.switchMarket()}
+                >
                     <Icon
                         name="trade"
                         title="icons.trade.trade"
@@ -901,6 +908,7 @@ class AccountPortfolioList extends React.Component {
                                 to={`/market/${asset.get(
                                     "symbol"
                                 )}_${preferredMarket}`}
+                                onClick={() => MarketsActions.switchMarket()}
                             >
                                 <Icon
                                     name="trade"

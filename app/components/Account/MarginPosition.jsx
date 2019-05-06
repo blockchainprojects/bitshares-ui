@@ -19,6 +19,7 @@ import {Link} from "react-router-dom";
 import TranslateWithLinks from "../Utility/TranslateWithLinks";
 import Immutable from "immutable";
 import {Tooltip, Icon as AntIcon} from "bitshares-ui-style-guide";
+import MarketsActions from "actions/MarketsActions";
 
 const alignRight = {textAlign: "right"};
 const alignLeft = {textAlign: "left"};
@@ -361,6 +362,7 @@ class MarginPosition extends React.Component {
                         to={`/market/${debtAsset.get(
                             "symbol"
                         )}_${collateralAsset.get("symbol")}`}
+                        onClick={() => MarketsActions.switchMarket()}
                     >
                         <Icon
                             name="trade"

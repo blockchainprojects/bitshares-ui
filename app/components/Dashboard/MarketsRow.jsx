@@ -114,10 +114,10 @@ class MarketsRow extends React.Component {
         let changeClass = !marketStats
             ? ""
             : parseFloat(marketStats.change) > 0
-                ? "change-up"
-                : parseFloat(marketStats.change) < 0
-                    ? "change-down"
-                    : "";
+            ? "change-up"
+            : parseFloat(marketStats.change) < 0
+            ? "change-down"
+            : "";
 
         let marketID = `${quote.get("symbol")}_${base.get("symbol")}`;
 
@@ -148,6 +148,7 @@ class MarketsRow extends React.Component {
                         to={`/market/${this.props.quote.get(
                             "symbol"
                         )}_${this.props.base.get("symbol")}`}
+                        onClick={() => MarketsActions.switchMarket()}
                     >
                         <img
                             ref={imgName.toLowerCase()}

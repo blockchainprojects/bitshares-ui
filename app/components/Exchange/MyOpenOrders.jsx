@@ -21,6 +21,7 @@ const rightAlign = {textAlign: "right"};
 const centerAlign = {textAlign: "center"};
 import ReactTooltip from "react-tooltip";
 import {Tooltip} from "bitshares-ui-style-guide";
+import MarketsActions from "actions/MarketsActions";
 
 class TableHeader extends React.Component {
     render() {
@@ -125,8 +126,8 @@ class OrderRow extends React.Component {
         let tdClass = isCall
             ? "orderHistoryCall"
             : isBid
-                ? "orderHistoryBid"
-                : "orderHistoryAsk";
+            ? "orderHistoryBid"
+            : "orderHistoryAsk";
 
         let priceSymbol = showSymbols ? (
             <span>{` ${base.get("symbol")}/${quote.get("symbol")}`}</span>
@@ -225,6 +226,7 @@ class OrderRow extends React.Component {
                         to={`/market/${quote.get("symbol")}_${base.get(
                             "symbol"
                         )}`}
+                        onClick={() => MarketsActions.switchMarket()}
                     >
                         <Icon
                             name="trade"
