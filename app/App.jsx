@@ -41,6 +41,12 @@ const Explorer = Loadable({
     loading: LoadingIndicator
 });
 
+const VotingOverview = Loadable({
+    loader: () =>
+        import(/* webpackChunkName: "voting" */ "./components/Voting/VotingOverview"),
+    loading: LoadingIndicator
+});
+
 const AccountPage = Loadable({
     loader: () =>
         import(/* webpackChunkName: "account" */ "./components/Account/AccountPage"),
@@ -432,6 +438,15 @@ class App extends React.Component {
                                     component={Explorer}
                                 />
                                 <Route path="/explorer" component={Explorer} />
+                                {/* Voting routes */}
+                                <Route
+                                    path="/voting2/:tab"
+                                    component={VotingOverview}
+                                />
+                                <Route
+                                    path="/voting2"
+                                    component={VotingOverview}
+                                />
                                 <Route
                                     path="/asset/:symbol"
                                     component={Asset}
