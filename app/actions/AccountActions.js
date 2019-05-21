@@ -190,6 +190,24 @@ class AccountActions {
     setPasswordAccount(account) {
         return account;
     }
+
+    createCommittee({url, account}) {
+        const account_id = account.get("id");
+        let fee_asset_id = accountUtils.getFinalFeeAsset(
+            account_id,
+            "create_committee_member"
+        );
+        var tr = WalletApi.new_transaction();
+        tr.add_type_operation("create_committee_member", {
+            fee: {
+                amount: 0,
+                asset_id: fee_asset_id
+            },
+            account: account_id,
+            url
+        });
+        return WalletDb.process_transaction(tr, null, true);
+    }
 }
 
 export default alt.createActions(AccountActions);

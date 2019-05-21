@@ -323,6 +323,7 @@
             "cm_approved_by": "Committee members approved by %(account)s",
             "cm_not_approved_by": "Committee members not approved by %(account)s",
             "committee": "Committee member name",
+            "create_committee": "Create a new committee",
             "create_worker": "Create a new worker",
             "creator": "Creator",
             "daily": "daily",
@@ -1324,6 +1325,10 @@
         },
         "cancel": "cancel",
         "close": "close",
+        "committee": {
+            "url": "URL",
+            "from": "From"
+        },
         "confirmation": {
             "accept": "Yes",
             "cancel": "No",

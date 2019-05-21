@@ -20,8 +20,16 @@ import FormattedAsset from "../Utility/FormattedAsset";
 import SettingsStore from "stores/SettingsStore";
 import stringSimilarity from "string-similarity";
 import {hiddenProposals} from "../../lib/common/hideProposals";
-import {Switch, Tooltip} from "bitshares-ui-style-guide";
+import {
+    Switch,
+    Tooltip,
+    Button,
+    Modal,
+    Input,
+    Select
+} from "bitshares-ui-style-guide";
 import AccountStore from "stores/AccountStore";
+import AccountActions from "actions/AccountActions";
 
 class AccountVoting extends React.Component {
     static propTypes = {
@@ -50,7 +58,10 @@ class AccountVoting extends React.Component {
             workerTableIndex: props.viewSettings.get("workerTableIndex", 1),
             all_witnesses: Immutable.List(),
             all_committee: Immutable.List(),
-            hideLegacyProposals: true
+            hideLegacyProposals: true,
+            showCreateCommitteeModal: false,
+            committeeAccount: props.account,
+            urlSchema: "Https://"
         };
         this.onProxyAccountFound = this.onProxyAccountFound.bind(this);
         this.onPublish = this.onPublish.bind(this);
@@ -445,8 +456,8 @@ class AccountVoting extends React.Component {
             let now = new Date();
 
             /* Use the last valid budget object to estimate the current budget object id.
-            ** Budget objects are created once per hour
-            */
+             ** Budget objects are created once per hour
+             */
             let currentID =
                 idIndex +
                 Math.floor(
@@ -516,15 +527,44 @@ class AccountVoting extends React.Component {
         });
     }
 
+    onAddComittee() {
+        const {committee_modal_input} = this.refs;
+        const {committeeAccount, urlSchema} = this.state;
+
+        if (committeeAccount && committee_modal_input) {
+            let url = urlSchema + committee_modal_input.state.value;
+            url = url.toLowerCase();
+            AccountActions.createCommittee({account: committeeAccount, url});
+        }
+        this.showModal();
+    }
+
+    showModal() {
+        this.setState({
+            showCreateCommitteeModal: !this.state.showCreateCommitteeModal
+        });
+    }
+
+    onChangeCommittee(account) {
+        this.setState({
+            committeeAccount: account
+        });
+    }
+
     render() {
-        let {workerTableIndex, prev_proxy_account_id} = this.state;
+        let {
+            workerTableIndex,
+            prev_proxy_account_id,
+            committeeAccount,
+            urlSchema
+        } = this.state;
         const accountHasProxy = !!prev_proxy_account_id;
         let preferredUnit = this.props.settings.get("unit") || "1.3.0";
         let hasProxy = !!this.state.proxy_account_id; // this.props.account.getIn(["options", "voting_account"]) !== "1.2.5";
         let publish_buttons_class = cnames("button", {
             disabled: !this.isChanged()
         });
-        let {globalObject} = this.props;
+        let {globalObject, account} = this.props;
         let budgetObject;
         if (this.state.lastBudgetObject) {
             budgetObject = ChainStore.getObject(this.state.lastBudgetObject);
@@ -824,6 +864,17 @@ class AccountVoting extends React.Component {
             </div>
         );
 
+        const selectBefore = (
+            <Select
+                defaultValue={urlSchema}
+                style={{width: 100}}
+                onChange={value => this.setState({urlSchema: value})}
+            >
+                <Select.Option value="Http://">Http://</Select.Option>
+                <Select.Option value="Https://">Https://</Select.Option>
+            </Select>
+        );
+
         return (
             <div className="grid-content app-tables no-padding" ref="appTables">
                 <div className="content-block small-12">
@@ -888,11 +939,22 @@ class AccountVoting extends React.Component {
                                 <div className={cnames("content-block")}>
                                     <div className="header-selector">
                                         {/* <Link to="/help/voting/committee"><Icon name="question-circle" title="icons.question_cirlce" /></Link> */}
+                                        <div style={{float: "right"}}>
+                                            <Button
+                                                type="primary"
+                                                onClick={this.showModal.bind(
+                                                    this
+                                                )}
+                                            >
+                                                <Translate content="account.votes.create_committee" />
+                                            </Button>
+                                        </div>
                                         {proxyInput}
                                         <div
+                                            className="selector"
                                             style={{
                                                 float: "right",
-                                                marginTop: "-2.5rem"
+                                                paddingBottom: "10px"
                                             }}
                                         >
                                             {actionButtons}
@@ -929,6 +991,72 @@ class AccountVoting extends React.Component {
                                         proxy={this.state.proxy_account_id}
                                     />
                                 </div>
+                                <Modal
+                                    title={counterpart.translate(
+                                        "account.votes.create_committee"
+                                    )}
+                                    closable={false}
+                                    visible={
+                                        this.state.showCreateCommitteeModal
+                                    }
+                                    footer={[
+                                        <Button
+                                            key="submit"
+                                            type="primary"
+                                            onClick={this.onAddComittee.bind(
+                                                this
+                                            )}
+                                        >
+                                            {counterpart.translate(
+                                                "modal.confirmation.accept"
+                                            )}
+                                        </Button>,
+                                        <Button
+                                            key="cancel"
+                                            style={{marginLeft: "8px"}}
+                                            onClick={this.showModal.bind(this)}
+                                        >
+                                            {counterpart.translate(
+                                                "modal.confirmation.cancel"
+                                            )}
+                                        </Button>
+                                    ]}
+                                >
+                                    <div className="full-width-content form-group ant-form-item">
+                                        <AccountSelector
+                                            label="modal.committee.from"
+                                            accountName={
+                                                (committeeAccount &&
+                                                    committeeAccount.get(
+                                                        "name"
+                                                    )) ||
+                                                account.get("name")
+                                            }
+                                            account={
+                                                committeeAccount || account
+                                            }
+                                            onAccountChanged={this.onChangeCommittee.bind(
+                                                this
+                                            )}
+                                            size={35}
+                                            typeahead={true}
+                                        />
+                                        <div
+                                            className="ant-form-item-label"
+                                            style={{textAlign: "left"}}
+                                        >
+                                            <label>
+                                                {counterpart.translate(
+                                                    "modal.committee.url"
+                                                )}
+                                            </label>
+                                        </div>
+                                        <Input
+                                            addonBefore={selectBefore}
+                                            ref="committee_modal_input"
+                                        />
+                                    </div>
+                                </Modal>
                             </Tab>
 
                             <Tab title="account.votes.workers_short">
@@ -1194,8 +1322,8 @@ class AccountVoting extends React.Component {
                                         {workerTableIndex === 0
                                             ? newWorkers
                                             : workerTableIndex === 1
-                                                ? workers
-                                                : expiredWorkers}
+                                            ? workers
+                                            : expiredWorkers}
                                     </tbody>
                                 </table>
                             </Tab>
