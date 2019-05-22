@@ -193,20 +193,57 @@ class AccountActions {
 
     createCommittee({url, account}) {
         const account_id = account.get("id");
-        let fee_asset_id = accountUtils.getFinalFeeAsset(
-            account_id,
-            "create_committee_member"
-        );
         var tr = WalletApi.new_transaction();
-        tr.add_type_operation("create_committee_member", {
+
+        tr.add_type_operation("committee_member_create", {
             fee: {
                 amount: 0,
-                asset_id: fee_asset_id
+                asset_id: "1.3.0"
             },
-            account: account_id,
-            url
+            committee_member_account: account_id,
+            url: url
         });
-        return WalletDb.process_transaction(tr, null, true);
+        return dispatch => {
+            return WalletDb.process_transaction(tr, null, true)
+                .then(() => {
+                    dispatch(true);
+                })
+                .catch(error => {
+                    console.log(
+                        "[AccountActions.js:150] ----- Add Committee member error ----->",
+                        error
+                    );
+                    dispatch(false);
+                });
+        };
+    }
+
+    createWitness({url, account, memo_key}) {
+        const account_id = account.get("id");
+        var tr = WalletApi.new_transaction();
+
+        tr.add_type_operation("witness_create", {
+            fee: {
+                amount: 0,
+                asset_id: "1.3.0"
+            },
+            witness_account: account_id,
+            url: url,
+            block_signing_key: memo_key
+        });
+        return dispatch => {
+            return WalletDb.process_transaction(tr, null, true)
+                .then(() => {
+                    dispatch(true);
+                })
+                .catch(error => {
+                    console.log(
+                        "[AssetActions.js:150] ----- Create witness error ----->",
+                        error
+                    );
+                    dispatch(false);
+                });
+        };
     }
 }
 

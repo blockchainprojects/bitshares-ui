@@ -323,7 +323,6 @@
             "cm_approved_by": "Committee members approved by %(account)s",
             "cm_not_approved_by": "Committee members not approved by %(account)s",
             "committee": "Committee member name",
-            "create_committee": "Create a new committee",
             "create_worker": "Create a new worker",
             "creator": "Creator",
             "daily": "daily",
@@ -335,6 +334,8 @@
             "hide_legacy_proposals": "Hide Legacy Proposals",
             "inactive": "Backup",
             "info": "Info",
+            "join_committee": "Join committee",
+            "join_witnesses": "Join Witnesses",
             "line": "Line",
             "max_pay": "Maximum total pay",
             "missing": "Needed",
@@ -1326,8 +1327,23 @@
         "cancel": "cancel",
         "close": "close",
         "committee": {
+            "confirm": "CONFIRM",
+            "create_committee": "Become a committee member",
+            "from": "From",
+            "text": "With enough BTS stakeholder votes committee can set policies for the BitShares Blochain including: <ul><li>Transaction and trading fees</li><li>Blockchain parametrs (Block size, interval etc.)</li><li>Referral and vesting parametrs (Cash back &#37, vesting period etc.)</li></ul> Simply submit a URL to your website or forum post explaning why yo would be a exemplary member to attract enough votes to become active.",
             "url": "URL",
-            "from": "From"
+            "web_example": "E.g. http://www.web-address.com"
+        },
+        "witness": {
+            "confirm": "CONFIRM",
+            "create_witness": "Become a witness member",
+            "from": "From",
+            "invalid_key": "Public Key is invalid",
+            "text": "Witnesses text",
+            "url": "URL",
+            "web_example": "E.g. http://www.web-address.com",
+            "public_key_memo": "Memo Public Key",
+            "public_key": "Public Key"
         },
         "confirmation": {
             "accept": "Yes",
