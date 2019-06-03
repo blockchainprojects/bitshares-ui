@@ -59,7 +59,8 @@
     $positive-color-alternative,
     $separator-line,
     $medium-color,
-    $dark-help-text
+    $dark-help-text,
+    $settings-label-color
 ) {
     $hamburger-submenu-display-endpoint: 990px;
     .showcases-grid {
@@ -192,7 +193,6 @@
     #incognito {
         background: $incognito-bg;
     }
-
     .settings-select {
         height: 36px;
         padding: 0 12px;
@@ -230,6 +230,14 @@
             &:hover {
                 color: $link-text-color;
             }
+        }
+    }
+    .form-input-header {
+        .form-input-header--label {
+        }
+        .form-input-header--right {
+            float: right;
+            cursor: pointer;
         }
     }
     .dark-text-color {
@@ -298,6 +306,7 @@
     // select:hover {
     // background-color: $panel-bg-color;
     // }
+
     .label.success {
         color: $success-color;
         border-color: $success-color;
@@ -335,7 +344,6 @@
     .txtlabel.warning {
         color: $warning-color;
     }
-
     .txtlabel.cancel,
     .label.alert {
         color: $alert-color;
@@ -374,8 +382,7 @@
                 @include color(
                     $light-text-color,
                     lighten($super-light-panel-bg-color, 4%)
-                );
-                // color: $link-text-color;
+                ); // color: $link-text-color;
             }
         }
     }
@@ -417,7 +424,6 @@
             background-color: $button-bg-color;
         }
     }
-
     .modal#marketPicker,
     .modal#settingsModal {
         background-color: $bg-color;
@@ -865,7 +871,8 @@
             }
             > li > span {
                 color: $light-text-color;
-            } /* Hover state */
+            }
+            /* Hover state */
             li:hover > span {
                 @include color(
                     $light-text-color,
@@ -1430,11 +1437,9 @@
     .exchange-content-header {
         color: $light-text-color;
     }
-
     .exchange-content-header--buy-sell-form {
         border-bottom: 0 !important;
     }
-
     // .block-content-header {
     // //text-transform: uppercase;
     // @include RobotoLight;
@@ -1496,6 +1501,7 @@
     .ask {
         background-color: $ask-color !important;
     }
+
     .orderbook-latest-price {
         > div {
             $orderbook-center-horizontal-margin: 5px;
@@ -1544,6 +1550,7 @@
     // > tbody > tr:nth-of-type(even) {
     // background-color: $row-accent-color;
     // }
+
     // }
     .mymarkets-header {
         background-color: $header-color;
@@ -1711,6 +1718,15 @@
     .unstyled-list {
         list-style: none;
         margin-left: 0;
+        margin-bottom: 0;
+    }
+    .settings-container {
+        // hardcode style overriding for style-guide labels of Form.Item
+        .ant-form-item-label label {
+            font-weight: 500 !important;
+            text-transform: uppercase !important;
+            color: $settings-label-color !important;
+        }
     }
     .settings--notifications {
         .settings--notifications--group {
@@ -1951,6 +1967,14 @@
                 }
             }
         }
+    }
+    .ant-table-content .ant-table-footer .total-value {
+        .value {
+            color: $account-green;
+        }
+    }
+    .ant-table-placeholder {
+        min-height: 130px;
     }
     div.account-creation {
         border: 1px solid $account-cells;
@@ -2193,7 +2217,6 @@
                 margin-top: -5px;
             }
         }
-
         > div {
             float: left;
             min-width: 145px;
@@ -2259,6 +2282,7 @@
         }
         &-modal {
         }
+
         &-input-field {
             border-radius: 5px 0 0 5px !important;
         }
@@ -2387,7 +2411,6 @@
             border-color: $button-bg-color;
             background-color: transparentize($button-bg-color, 0.9);
         }
-
         span.checkbox-active {
             border-color: $button-bg-color;
             background-color: $button-bg-color;
