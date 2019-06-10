@@ -10,6 +10,8 @@ export default class TradingViewPriceChart extends React.Component {
     loadTradingView(props) {
         const {dataFeed} = props;
         let themeColors = colors[props.theme];
+        const quoteSymbol = props.quoteSymbol || "BTS";
+        const baseSymbol = props.baseSymbol || "USD";
 
         if (!dataFeed) return;
         if (!!this.tvWidget) return;
@@ -19,14 +21,14 @@ export default class TradingViewPriceChart extends React.Component {
                 "currentResolution",
                 getResolutionsFromBuckets([props.bucketSize])[0],
                 "symbol",
-                props.quoteSymbol + "_" + props.baseSymbol,
+                quoteSymbol + "_" + baseSymbol,
                 "timezone:",
                 getTVTimezone()
             );
 
         dataFeed.update({
             resolutions: props.buckets,
-            ticker: props.quoteSymbol + "_" + props.baseSymbol,
+            ticker: quoteSymbol + "_" + baseSymbol,
             interval: getResolutionsFromBuckets([props.bucketSize])[0]
         });
 
