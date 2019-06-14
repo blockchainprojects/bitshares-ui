@@ -4,7 +4,6 @@ import {checkFeeStatusAsync} from "common/trxHelper";
 
 class RegularOrderBook {
     constructor(props) {
-        super(props);
         this.activeMarketHistory = MarketsStore.getState().activeMarketHistory; //latest change class
         this.marketLimitOrders = MarketsStore.getState().marketLimitOrders; //orders
         this.marketCallOrders = MarketsStore.getState().marketCallOrders; //calls
@@ -55,9 +54,7 @@ class RegularOrderBook {
 }
 
 class HtlcOrderBook {
-    constructor(props) {
-        super(props);
-    }
+    constructor(props) {}
 
     checkFeeStatusAsync(accountID, feeID) {
         return checkFeeStatusAsync({
