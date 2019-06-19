@@ -812,6 +812,29 @@ class Header extends React.Component {
             );
         }
 
+        if (active.indexOf("/direct-debit") !== -1) {
+            dynamicMenuItem = (
+                <a
+                    style={{flexFlow: "row"}}
+                    className={cnames({
+                        active: active.indexOf("/direct-debit") !== -1
+                    })}
+                >
+                    <Icon
+                        size="1_5x"
+                        style={{position: "relative", top: 0, left: -8}}
+                        name="direct_debit"
+                        title="icons.direct_debit"
+                    />
+                    <Translate
+                        className="column-hide-small"
+                        component="span"
+                        content="showcases.direct_debit.title"
+                    />
+                </a>
+            );
+        }
+
         const submenus = {
             [SUBMENUS.SETTINGS]: (
                 <ul
@@ -1169,15 +1192,19 @@ class Header extends React.Component {
                     className="truncated active-account"
                     style={{cursor: "pointer"}}
                 >
-                    <AccountBrowsingMode location={this.props.location} />
+                    <AccountBrowsingMode
+                        history={this.props.history}
+                        location={this.props.location}
+                    />
                     <div>
                         <div className="text account-name">
                             <span onClick={this._toggleAccountDropdownMenu}>
                                 {currentAccount}
                             </span>
                             <AccountBrowsingMode
+                                history={this.props.history}
                                 location={this.props.location}
-                                usernameViewIcon={true}
+                                usernameViewIcon
                             />
                         </div>
                         {walletBalance}

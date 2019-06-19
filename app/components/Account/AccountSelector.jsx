@@ -22,7 +22,7 @@ import {
     Form
 } from "bitshares-ui-style-guide";
 
-/**
+/*
  * @brief Allows the user to enter an account by name or #ID
  *
  * This component is designed to be stateless as possible.  It's primary responsbility is to
@@ -56,14 +56,14 @@ class AccountSelector extends React.Component {
         excludeAccounts: [],
         disabled: null,
         editable: null,
-        locked: null
+        locked: false
     };
 
     constructor(props) {
         super(props);
         this.state = {
             inputChanged: false,
-            locked: this.props.locked
+            locked: null
         };
     }
 
@@ -241,8 +241,8 @@ class AccountSelector extends React.Component {
                 account.accountType === "name"
                     ? "#" + account.get("id").substring(4)
                     : account.accountType === "id"
-                        ? account.get("name")
-                        : null;
+                    ? account.get("name")
+                    : null;
         }
 
         // Without Typeahead Error Handling
@@ -394,63 +394,71 @@ class AccountSelector extends React.Component {
             error ||
             disableActionButton;
 
-        let editableInput = !!this.state.locked
+        const lockedState =
+            this.state.locked !== null ? this.state.locked : this.props.locked;
+
+        let editableInput = !!lockedState
             ? false
             : this.props.editable != null
-                ? this.props.editable
-                : undefined;
-        let disabledInput = !!this.state.locked
+            ? this.props.editable
+            : undefined;
+        let disabledInput = !!lockedState
             ? true
             : this.props.disabled != null
-                ? this.props.disabled
-                : undefined;
+            ? this.props.disabled
+            : undefined;
 
         return (
-            <Form
-                className="full-width"
-                layout="vertical"
-                style={this.props.style}
+            <Tooltip
+                className="input-area"
+                title={this.props.tooltip}
+                mouseEnterDelay={0.5}
             >
-                <Form.Item
-                    label={
-                        this.props.label
-                            ? counterpart.translate(this.props.label)
-                            : ""
-                    }
-                    validateStatus={error ? "error" : null}
-                    help={error ? error : null}
+                <Form
+                    className="full-width"
+                    layout="vertical"
+                    style={this.props.style}
                 >
-                    {this.props.label ? (
-                        <div
-                            className={
-                                "header-area" +
-                                (this.props.hideImage ? " no-margin" : "")
-                            }
-                        >
-                            <label
-                                className={cnames(
-                                    "right-label",
-                                    account &&
-                                    (account.isFavorite || account.isOwn)
-                                        ? "positive"
-                                        : null,
-                                    account && account.isKnownScammer
-                                        ? "negative"
-                                        : null
-                                )}
-                                style={{marginTop: -30}}
+                    <Form.Item
+                        label={
+                            this.props.label
+                                ? counterpart.translate(this.props.label)
+                                : ""
+                        }
+                        validateStatus={error ? "error" : null}
+                        help={error ? error : null}
+                    >
+                        {this.props.label ? (
+                            <div
+                                className={
+                                    "header-area" +
+                                    (this.props.hideImage ? " no-margin" : "")
+                                }
                             >
-                                <span style={{paddingRight: "0.5rem"}}>
-                                    {account && account.statusText}
-                                    &nbsp;
-                                    {!!displayText && displayText}
-                                </span>
-                                {linked_status}
-                            </label>
-                        </div>
-                    ) : null}
-                    {useHR && <hr />}
-                    <Tooltip className="input-area" title={this.props.tooltip}>
+                                <label
+                                    className={cnames(
+                                        "right-label",
+                                        account &&
+                                            (account.isFavorite ||
+                                                account.isOwn)
+                                            ? "positive"
+                                            : null,
+                                        account && account.isKnownScammer
+                                            ? "negative"
+                                            : null
+                                    )}
+                                    style={{marginTop: -30}}
+                                >
+                                    <span style={{paddingRight: "0.5rem"}}>
+                                        {account && account.statusText}
+                                        &nbsp;
+                                        {!!displayText && displayText}
+                                    </span>
+                                    {linked_status}
+                                </label>
+                            </div>
+                        ) : null}
+                        {useHR && <hr />}
                         <div className="inline-label input-wrapper">
                             {account && account.accountType === "pubkey" ? (
                                 <div className="account-image">
@@ -485,7 +493,7 @@ class AccountSelector extends React.Component {
                                     value={account ? accountName : null}
                                     disabled={
                                         !!disabledInput
-                                            ? disabledInput.toString()
+                                            ? disabledInput
                                             : undefined
                                     }
                                 >
@@ -535,6 +543,7 @@ class AccountSelector extends React.Component {
                                         this.props.placeholder ||
                                         counterpart.translate("account.name")
                                     }
+                                    disabled={this.props.disabled}
                                     ref="user_input"
                                     onChange={this.onInputChanged.bind(this)}
                                     onKeyDown={this.onKeyDown.bind(this)}
@@ -561,7 +570,7 @@ class AccountSelector extends React.Component {
                                     }
                                 />
                             )}
-                            {!!this.state.locked && (
+                            {!!lockedState && (
                                 <Tooltip
                                     title={counterpart.translate(
                                         "tooltip.unlock_account_name"
@@ -608,9 +617,9 @@ class AccountSelector extends React.Component {
                                 </Tooltip>
                             ) : null}
                         </div>
-                    </Tooltip>
-                </Form.Item>
-            </Form>
+                    </Form.Item>
+                </Form>
+            </Tooltip>
         );
     }
 }
