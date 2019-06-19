@@ -144,8 +144,7 @@ const MarketUtils = {
             finalPrice = fromPrice;
         }
         if (!finalPrice) return null;
-        const finalId =
-            finalPrice.base.asset_id + "_" + finalPrice.quote.asset_id;
+        const finalId = [finalPrice.base.asset_id, finalPrice.quote.asset_id];
         if (
             finalId.indexOf(toAsset.get("id")) === -1 ||
             finalId.indexOf(fromAsset.get("id")) === -1
@@ -212,8 +211,8 @@ const MarketUtils = {
                 ? quote.get("precision")
                 : quote.precision
             : base.toJS
-                ? base.get("precision")
-                : base.precision;
+            ? base.get("precision")
+            : base.precision;
 
         let buy, sell;
         let callPrice;
