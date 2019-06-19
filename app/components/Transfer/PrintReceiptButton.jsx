@@ -40,7 +40,7 @@ const printReceipt = ({data, parsePrice}) => {
 
     const timestamp = date
         ? date.timestamp.toLocaleDateString("en-US").replace(/\//g, ".")
-        : null;
+        : new Date().toLocaleDateString("en-US").replace(/\//g, ".");
 
     const pdf = new jsPDF({
         orientation: "portrait",
@@ -129,7 +129,7 @@ const PrintReceiptButton = ({data, parsePrice}) => {
                 type="primary"
                 icon="download"
                 style={{float: "right", margin: "20px"}}
-                disabled={!data.from || !data.blockNum}
+                disabled={!data.from}
                 onClick={() => printReceipt({data, parsePrice})}
             >
                 {buttonText}

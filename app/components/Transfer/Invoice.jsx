@@ -1,9 +1,7 @@
 import React from "react";
-import classNames from "classnames";
 import FormattedAsset from "../Utility/FormattedAsset";
 import AccountActions from "actions/AccountActions";
 import AccountSelector from "../Account/AccountSelector";
-import AccountInfo from "../Account/AccountInfo";
 import BalanceComponent from "../Utility/BalanceComponent";
 import {ChainStore, FetchChainObjects} from "bitsharesjs/es";
 import NotificationActions from "actions/NotificationActions";
@@ -12,7 +10,8 @@ import {decompress} from "lzma";
 import bs58 from "common/base58";
 import utils from "common/utils";
 import PrintReceiptButton from "./PrintReceiptButton.jsx";
-
+import Translate from "react-translate-component";
+import {Form, Button, Row, Col, Divider} from "bitshares-ui-style-guide";
 // invoice example:
 //{
 //    "to" : "merchant_account_name",
@@ -39,6 +38,7 @@ class Invoice extends React.Component {
             blockNum: null
         };
         this.onBroadcastAndConfirm = this.onBroadcastAndConfirm.bind(this);
+        this.getTotal = this.getTotal.bind(this);
     }
 
     componentDidMount() {
@@ -52,7 +52,10 @@ class Invoice extends React.Component {
                 let invoice = JSON.parse(result);
                 FetchChainObjects(ChainStore.getAsset, [invoice.currency]).then(
                     assets_array => {
-                        this.setState({invoice, asset: assets_array[0]});
+                        this.setState(
+                            {invoice, asset: assets_array[0]},
+                            this.getTotal
+                        );
                     }
                 );
             });
@@ -68,14 +71,15 @@ class Invoice extends React.Component {
         return parseFloat(m[1].replace(/[\,\s]/g, ""));
     }
 
-    getTotal(items) {
+    getTotal() {
+        const items = this.state.invoice.line_items;
         if (!items || items.length === 0) return 0.0;
         let total_amount = items.reduce((total, item) => {
             let price = this.parsePrice(item.price);
             if (!price) return total;
             return total + item.quantity * price;
         }, 0.0);
-        return total_amount;
+        this.setState({total_amount});
     }
 
     onBroadcastAndConfirm(confirm_store_state) {
@@ -99,9 +103,8 @@ class Invoice extends React.Component {
 
     onPayClick(e) {
         e.preventDefault();
-        let asset = this.state.asset;
+        let {asset, total_amount} = this.state;
         let precision = utils.get_asset_precision(asset.get("precision"));
-        let amount = this.getTotal(this.state.invoice.line_items);
         let to_account = ChainStore.getAccount(this.state.invoice.to);
         if (!to_account) {
             NotificationActions.error(
@@ -112,7 +115,7 @@ class Invoice extends React.Component {
         AccountActions.transfer(
             this.state.pay_from_account.get("id"),
             to_account.get("id"),
-            parseInt(amount * precision, 10),
+            parseInt(total_amount * precision, 10),
             asset.get("id"),
             this.state.invoice.memo
         )
@@ -134,7 +137,6 @@ class Invoice extends React.Component {
     }
 
     render() {
-        console.log("-- Invoice.render -->", this.state.invoice);
         if (this.state.error)
             return (
                 <div>
@@ -148,17 +150,17 @@ class Invoice extends React.Component {
         if (!this.state.asset)
             return (
                 <div>
-                    <br />
-                    <h4 className="has-error text-center">
-                        Asset {this.state.invoice.currency} is not supported by
-                        this blockchain.
-                    </h4>
+                    <Translate
+                        className="has-error text-center"
+                        component="h4"
+                        content="transfer.errors.asset_unsupported"
+                        currency={this.state.invoice.currency}
+                    />
                 </div>
             );
 
-        let invoice = this.state.invoice;
-        let total_amount = this.getTotal(invoice.line_items);
-        let asset = this.state.invoice.currency;
+        let {invoice, total_amount} = this.state;
+        const asset = invoice.currency;
         let balance = null;
         const receiptData = {
             ...invoice,
@@ -170,18 +172,27 @@ class Invoice extends React.Component {
 
         if (this.state.pay_from_account) {
             let balances = this.state.pay_from_account.get("balances");
-            console.log(
-                "-- Invoice.render balances -->",
-                balances.get(this.state.asset.get("id"))
+            const balanceValue = balances.get(this.state.asset.get("id"));
+            balance = (
+                <span>
+                    <Translate component="span" content="transfer.available" />
+                    <span
+                        style={{
+                            borderBottom: "#A09F9F 1px dotted",
+                            cursor: "pointer"
+                        }}
+                    >
+                        <BalanceComponent balance={balanceValue} />
+                    </span>
+                </span>
             );
-            balance = balances.get(this.state.asset.get("id"));
         }
         let items = invoice.line_items.map((i, index) => {
             let price = this.parsePrice(i.price);
             let amount = i.quantity * price;
             return (
-                <tr key={index}>
-                    <td>
+                <Row>
+                    <Col span={12}>
                         <div className="item-name">{i.label}</div>
                         <div className="item-description">
                             {i.quantity} x{" "}
@@ -193,19 +204,16 @@ class Invoice extends React.Component {
                                 />
                             }
                         </div>
-                    </td>
-                    <td>
+                    </Col>
+                    <Col span={12}>
                         <FormattedAsset
                             amount={amount}
                             asset={asset}
                             exact_amount={true}
                         />
-                    </td>
-                </tr>
+                    </Col>
+                </Row>
             );
-        });
-        let payButtonClass = classNames("button", {
-            disabled: !this.state.pay_from_account
         });
 
         return (
@@ -216,84 +224,87 @@ class Invoice extends React.Component {
                             data={receiptData}
                             parsePrice={this.parsePrice}
                         />
-                        <br />
-                        <h3>Pay Invoice</h3>
-                        <h4>{invoice.memo}</h4>
-                        <br />
-                        <div>
-                            <AccountInfo
-                                title={invoice.to_label}
-                                account={invoice.to}
-                                image_size={{height: 80, width: 80}}
-                            />
-                            <br />
-                            <table className="table">
-                                <thead>
-                                    <tr>
-                                        <th>Items</th>
-                                        <th>Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {items}
-                                    <tr>
-                                        <td className="text-right">Total:</td>
-                                        <td>
-                                            <FormattedAsset
-                                                amount={total_amount}
-                                                asset={asset}
-                                                exact_amount={true}
-                                            />
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <br />
-                            <br />
+                        <Form className="full-width" layout="vertical">
+                            <div className="grid-block">
+                                <div className="grid-content medium-4">
+                                    <Translate
+                                        component="h3"
+                                        content="transfer.pay_invoice"
+                                    />
+                                    <h4>{invoice.memo}</h4>
 
-                            <form>
-                                <div className="grid-block">
-                                    <div className="grid-content medium-4">
-                                        {/*<AccountSelect ref="pay_from" account_names={accounts} onChange={this.onAccountChange.bind(this)}/>*/}
-                                        <AccountSelector
-                                            label="transfer.pay_from"
-                                            accountName={
-                                                this.state.pay_from_name
-                                            }
-                                            onChange={this.fromChanged.bind(
-                                                this
-                                            )}
-                                            onAccountChanged={this.onFromAccountChanged.bind(
-                                                this
-                                            )}
-                                            account={this.state.pay_from_name}
-                                        />
-                                    </div>
-                                    {this.state.pay_from_account ? (
-                                        <div className="grid-content medium-1">
-                                            <label>Balance</label>
-                                            <BalanceComponent
-                                                balance={balance}
+                                    <AccountSelector
+                                        label="transfer.to"
+                                        accountName={invoice.to}
+                                        disabled={true}
+                                        account={invoice.to}
+                                        size={32}
+                                    />
+                                    <AccountSelector
+                                        label="transfer.pay_from"
+                                        accountName={this.state.pay_from_name}
+                                        onChange={this.fromChanged.bind(this)}
+                                        onAccountChanged={this.onFromAccountChanged.bind(
+                                            this
+                                        )}
+                                        account={this.state.pay_from_name}
+                                        typeahead={true}
+                                        size={32}
+                                    />
+
+                                    <Row>
+                                        <Col span={12}>
+                                            <Translate
+                                                component="span"
+                                                content="transfer.items"
                                             />
-                                        </div>
-                                    ) : null}
+                                        </Col>
+                                        <Col span={12}>
+                                            <Translate
+                                                component="span"
+                                                content="transfer.amount"
+                                            />
+                                        </Col>
+                                    </Row>
+                                    <div className="divider" />
+                                    {items}
+                                    <Row>
+                                        <Col span={12} offset={12}>
+                                            <div>
+                                                <Translate
+                                                    component="span"
+                                                    content="transfer.total"
+                                                />
+
+                                                <FormattedAsset
+                                                    amount={total_amount}
+                                                    asset={asset}
+                                                    exact_amount={true}
+                                                />
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                    <Button
+                                        type="primary"
+                                        style={{marginTop: "30px"}}
+                                        disabled={!this.state.pay_from_account}
+                                        onClick={this.onPayClick.bind(this)}
+                                    >
+                                        <Translate
+                                            content="transfer.pay_button"
+                                            asset={
+                                                <FormattedAsset
+                                                    amount={total_amount}
+                                                    asset={asset}
+                                                    exact_amount={true}
+                                                />
+                                            }
+                                            name={invoice.to}
+                                        />
+                                    </Button>
                                 </div>
-                                <br />
-                                <a
-                                    href="#"
-                                    className={payButtonClass}
-                                    onClick={this.onPayClick.bind(this)}
-                                >
-                                    Pay{" "}
-                                    <FormattedAsset
-                                        amount={total_amount}
-                                        asset={asset}
-                                        exact_amount={true}
-                                    />{" "}
-                                    to {invoice.to}
-                                </a>
-                            </form>
-                        </div>
+                            </div>
+                        </Form>
                     </div>
                 </div>
             </div>
