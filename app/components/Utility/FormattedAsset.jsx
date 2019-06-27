@@ -117,22 +117,23 @@ class FormattedAsset extends React.Component {
             asset.options.description
         );
 
-        const currency_popover_body = !hide_asset && this.props.assetInfo && (
-            <div>
-                <HelpContent
-                    path={"assets/Asset"}
-                    section="summary"
-                    symbol={asset.symbol}
-                    description={
-                        description.short_name
-                            ? description.short_name
-                            : description.main
-                    }
-                    issuer={issuerName}
-                />
-                {this.props.assetInfo}
-            </div>
-        );
+        const currency_popover_body = !hide_asset &&
+            this.props.assetInfo && (
+                <div>
+                    <HelpContent
+                        path={"assets/Asset"}
+                        section="summary"
+                        symbol={asset.symbol}
+                        description={
+                            description.short_name
+                                ? description.short_name
+                                : description.main
+                        }
+                        issuer={issuerName}
+                    />
+                    {this.props.assetInfo}
+                </div>
+            );
 
         let formattedValue = null;
         if (!hide_amount) {
@@ -173,7 +174,7 @@ class FormattedAsset extends React.Component {
                         </span>
                     ) : (
                         <span className="currency">
-                            &nbsp;
+                            {!hide_amount ? <span>&nbsp;</span> : null}
                             <AssetName
                                 noTip={this.props.noTip}
                                 noPrefix={this.props.noPrefix}
