@@ -112,8 +112,8 @@ class AssetName extends React.Component {
                 prefix && prefix === "bit"
                     ? prefix
                     : !!prefix
-                        ? prefix.toUpperCase()
-                        : prefix;
+                    ? prefix.toUpperCase()
+                    : prefix;
             let assetDiv = (
                 <div
                     className={
