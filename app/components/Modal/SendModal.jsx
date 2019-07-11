@@ -90,6 +90,7 @@ class SendModal extends React.Component {
             error: null,
             knownScammer: null,
             propose: false,
+            operation_type: "transfer",
             propose_account: "",
             feeAsset: null,
             fee_asset_id: "1.3.0",
@@ -304,6 +305,7 @@ class SendModal extends React.Component {
             p.push(
                 checkFeeStatusAsync({
                     accountID: from_account.get("id"),
+                    type: state.operation_type,
                     feeID: a,
                     options: ["price_per_kbyte"],
                     data: {
@@ -401,8 +403,10 @@ class SendModal extends React.Component {
             fee_asset_id = fee_asset_types[0];
         }
         if (!from_account) return null;
+
         checkFeeStatusAsync({
             accountID: from_account.get("id"),
+            type: state.operation_type,
             feeID: fee_asset_id,
             options: ["price_per_kbyte"],
             data: {
@@ -545,15 +549,12 @@ class SendModal extends React.Component {
 
         this.setState({
             propose,
+            operation_type: !!propose ? "proposal_create" : "transfer",
             propose_account: propose ? from_account : null,
             from_account: propose ? null : from_account,
             from_name: propose ? "" : from_name
         });
     };
-
-    onProposeAccount(propose_account) {
-        this.setState({propose_account});
-    }
 
     render() {
         let {
