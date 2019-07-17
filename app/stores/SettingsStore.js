@@ -1,6 +1,7 @@
 import alt from "alt-instance";
 import SettingsActions from "actions/SettingsActions";
 import IntlActions from "actions/IntlActions";
+import AccountStore from "stores/AccountStore";
 import Immutable, {fromJS} from "immutable";
 import ls from "common/localStorage";
 import {Apis} from "bitsharesjs-ws";
@@ -118,7 +119,8 @@ class SettingsStore {
                 }
             },
             rememberMe: true,
-            viewOnlyMode: true
+            viewOnlyMode: true,
+            current_account_only: false
         };
     }
 
@@ -157,7 +159,8 @@ class SettingsStore {
                 }
             },
             rememberMe: [true, false],
-            viewOnlyMode: [{translate: "show"}, {translate: "hide"}]
+            viewOnlyMode: [{translate: "show"}, {translate: "hide"}],
+            current_account_only: [true, false],
         };
     }
 
@@ -311,7 +314,10 @@ class SettingsStore {
         if (settings == null) {
             settings = this.settings.toJS();
         }
-        ss.set("settings_v4", this._replaceDefaults("saving", settings));
+
+        const account = AccountStore.getState().currentAccount;       
+        const postfix = this.settings.get("current_account_only") && account ? `_${account}` : "";
+        ss.set(`settings_v4${postfix}`, this._replaceDefaults("saving", settings));
     }
 
     /**
@@ -320,7 +326,9 @@ class SettingsStore {
      * @private
      */
     _loadSettings() {
-        let userSavedSettings = ss.get("settings_v4");
+        const account = ss.get(this._getChainKey("currentAccount"));       
+        const postfix = account ? `_${account}` : "";
+        let userSavedSettings = ss.get(`settings_v4${postfix}`);
         // if (!!userSavedSettings) {
         //     console.log("User settings have been loaded:", userSavedSettings);
         // }

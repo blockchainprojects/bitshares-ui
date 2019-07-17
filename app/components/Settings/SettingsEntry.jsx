@@ -1,7 +1,6 @@
 import React from "react";
 import counterpart from "counterpart";
 import Translate from "react-translate-component";
-import SettingsActions from "actions/SettingsActions";
 import AssetName from "../Utility/AssetName";
 import Notify from "notifyjs";
 import {Checkbox, Select, Input, Form} from "bitshares-ui-style-guide";
@@ -54,6 +53,23 @@ export default class SettingsEntry extends React.Component {
         let component = null;
 
         switch (setting) {
+            case "current_account_only":
+                value = true;
+
+                component = (                    
+                    <Checkbox
+                        id="current_account_only"
+                        checked={selected}
+                        onChange={this.props.onAccountOnlyChange}
+                    >
+                        {counterpart.translate(
+                            "settings.for_current_account_only"
+                        )}
+                    </Checkbox>                   
+                );
+
+                break;
+                
             case "locale":
                 value = selected;
                 options = defaults.map(entry => {

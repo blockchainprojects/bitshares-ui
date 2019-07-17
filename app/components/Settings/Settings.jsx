@@ -28,6 +28,7 @@ class Settings extends React.Component {
         if (tabIndex >= 0) activeSetting = tabIndex;
 
         let general = [
+            "current_account_only",
             "locale",
             "unit",
             "browser_notifications",
@@ -65,6 +66,7 @@ class Settings extends React.Component {
         this._handleNotificationChange = this._handleNotificationChange.bind(
             this
         );
+        this._handleCurrentAccountOnlyChange = this._handleCurrentAccountOnlyChange.bind(this);
     }
 
     componentDidUpdate(prevProps) {
@@ -183,6 +185,14 @@ class Settings extends React.Component {
         } else {
             this._onChangeSetting(setting, input);
         }
+    }
+
+    _handleCurrentAccountOnlyChange(e) {        
+
+        SettingsActions.changeSetting({
+            setting: "current_account_only",
+            value: e.target.checked
+        });
     }
 
     _onChangeSetting(setting, e) {
@@ -304,7 +314,7 @@ class Settings extends React.Component {
     }
 
     render() {
-        let {settings, defaults} = this.props;
+        let {settings, defaults, currentAccount} = this.props;
         const {menuEntries, activeSetting, settingEntries} = this.state;
         let entries;
         let activeEntry = menuEntries[activeSetting] || menuEntries[0];
@@ -369,6 +379,7 @@ class Settings extends React.Component {
 
             default:
                 entries = settingEntries[activeEntry].map(setting => {
+                    if (setting === "current_account_only" && !currentAccount) return;
                     return (
                         <SettingsEntry
                             key={setting}
@@ -381,6 +392,7 @@ class Settings extends React.Component {
                             onNotificationChange={
                                 this._handleNotificationChange
                             }
+                            onAccountOnlyChange={this._handleCurrentAccountOnlyChange}
                             locales={this.props.localesObject}
                             {...this.state}
                         />
