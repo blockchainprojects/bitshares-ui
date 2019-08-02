@@ -1,7 +1,7 @@
 import React from "react";
 import Translate from "react-translate-component";
 import FormattedAsset from "../Utility/FormattedAsset";
-import {ChainStore} from "bitsharesjs";
+import {ChainStore, FetchChain} from "bitsharesjs";
 import utils from "common/utils";
 import WalletActions from "actions/WalletActions";
 import {Apis} from "bitsharesjs-ws";
@@ -146,6 +146,12 @@ class VestingBalance extends React.Component {
         });
     }
 
+    getAsset() {
+        FetchChain("getAsset", this.props.vb.balance.asset_id).then(result =>
+            this.setState({cvbAsset: result})
+        );
+    }
+
     render() {
         let {vb} = this.props;
 
@@ -166,8 +172,12 @@ class VestingBalance extends React.Component {
             balance = vb.balance.amount;
             if (!balance) return null;
 
-            cvbAsset = ChainStore.getAsset(vb.balance.asset_id);
+            cvbAsset = this.state
+                ? this.state.cvbAsset
+                : ChainStore.getAsset(vb.balance.asset_id);
+
             if (!cvbAsset) {
+                this.getAsset();
                 return <LoadingIndicator type="circle" />;
             }
 
