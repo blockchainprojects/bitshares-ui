@@ -7,6 +7,7 @@ import WalletActions from "actions/WalletActions";
 import {Apis} from "bitsharesjs-ws";
 import LoadingIndicator from "components/LoadingIndicator";
 import {Button} from "bitshares-ui-style-guide";
+import {bindToCurrentAccount} from "../Utility/BindToCurrentAccount";
 
 function VestingBalanceView({
     vestingAsset,
@@ -153,7 +154,7 @@ class VestingBalance extends React.Component {
     }
 
     render() {
-        let {vb} = this.props;
+        let {vb, canClaim} = this.props;
 
         if (!this.props.vb) {
             return null;
@@ -165,8 +166,7 @@ class VestingBalance extends React.Component {
             days_earned = 0,
             days_required = 0,
             days_remaining = 0,
-            isCoinDays = true,
-            canClaim = true;
+            isCoinDays = true;
 
         if (vb) {
             balance = vb.balance.amount;
@@ -332,6 +332,10 @@ class AccountVesting extends React.Component {
             return null;
         }
 
+        const canClaim =
+            this.props.account.get("id") ===
+            this.props.currentAccount.get("id");
+
         let balances = vesting_balances
             .map(vb => {
                 if (vb.balance.amount) {
@@ -339,7 +343,7 @@ class AccountVesting extends React.Component {
                         <VestingBalance
                             key={vb.id}
                             vb={vb}
-                            account={this.props.account.toJS()}
+                            canClaim={canClaim}
                             handleChanged={this.retrieveVestingBalances.bind(
                                 this
                             )}
@@ -386,4 +390,4 @@ class AccountVesting extends React.Component {
 }
 
 AccountVesting.VestingBalance = VestingBalance;
-export default AccountVesting;
+export default bindToCurrentAccount(AccountVesting);
